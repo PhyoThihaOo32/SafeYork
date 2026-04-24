@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "SafeBeacon",
+    "slug": "safebeacon",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "safebeacon",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "SafeBeacon uses location only in Demo Mode to show how emergency location sharing would work."
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#07111f"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "router": {}
+    }
+  }
+}

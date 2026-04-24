@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SafeSignal is an AI-powered emergency alert app for faster help when every second matters.">
+  <title>SafeYork | AI Emergency Alerts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <a class="brand" href="index.html" aria-label="SafeSignal home">
+        <span class="brand-mark" aria-hidden="true">SS</span>
+        <span>SafeYork</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu">
+        <span class="sr-only">Toggle navigation</span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-menu" id="nav-menu">
+        <li><a class="active" href="index.html">Home</a></li>
+        <li><a href="project.html">Project</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+      <button class="theme-toggle" type="button" aria-label="Switch to night theme">
+        <span class="theme-icon" aria-hidden="true">DAY</span>
+        <span class="theme-text">Day</span>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero home-hero">
+      <div class="hero-content reveal">
+        <p class="eyebrow">Public safety meets responsible AI</p>
+        <h1>SafeYork</h1>
+        <p class="hero-subtitle">AI-powered emergency alerts for faster help when every second matters.</p>
+        <p class="hero-copy">In dangerous or medical emergencies, people may panic, freeze, or become unable to call for help. SafeSignal creates a faster bridge between crisis and trusted support.</p>
+        <div class="button-row">
+          <a class="btn btn-primary" href="project.html">View Project</a>
+          <a class="btn btn-secondary" href="about.html">Learn More</a>
+        </div>
+      </div>
+      <div class="signal-panel reveal delay-1" aria-label="SafeSignal alert preview">
+        <div class="phone-shell">
+          <div class="phone-status">
+            <span>SafeSignal</span>
+            <span class="status-live">Live</span>
+          </div>
+          <div class="emergency-orb" aria-hidden="true">
+            <span>!</span>
+          </div>
+          <h2>Emergency Ready</h2>
+          <p>One tap can share location, danger level, and status with trusted support.</p>
+          <div class="mini-data">
+            <span>Heart rate: 128 bpm</span>
+            <span>Location: Shared</span>
+            <span>Danger: Warning</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading reveal">
+        <p class="eyebrow">Feature preview</p>
+        <h2>Designed for speed, clarity, and support</h2>
+      </div>
+      <div class="card-grid four">
+        <article class="feature-card reveal">
+          <span class="icon" aria-hidden="true">!</span>
+          <h3>One-Tap Emergency Alert</h3>
+          <p>Send a distress signal instantly when speaking or typing is too difficult.</p>
+        </article>
+        <article class="feature-card reveal delay-1">
+          <span class="icon" aria-hidden="true">AI</span>
+          <h3>AI Danger Detection</h3>
+          <p>Simulate risk signals from voice, movement, heart rate, and response status.</p>
+        </article>
+        <article class="feature-card reveal delay-2">
+          <span class="icon" aria-hidden="true">TC</span>
+          <h3>Trusted Contacts</h3>
+          <p>Notify the people a user chooses before emergencies happen.</p>
+        </article>
+        <article class="feature-card reveal delay-3">
+          <span class="icon" aria-hidden="true">LOC</span>
+          <h3>Live Location Sharing</h3>
+          <p>Give responders the location and status context they need to act quickly.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>SafeSignal | AI-powered emergency support concept</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

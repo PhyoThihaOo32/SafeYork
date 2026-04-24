@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SafeSignal project overview, technology plan, danger levels, MVP features, and user journeys.">
+  <title>Project | SafeSignal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <a class="brand" href="index.html" aria-label="SafeSignal home">
+        <span class="brand-mark" aria-hidden="true">SS</span>
+        <span>SafeSignal</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu">
+        <span class="sr-only">Toggle navigation</span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-menu" id="nav-menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a class="active" href="project.html">Project</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+      <button class="theme-toggle" type="button" aria-label="Switch to night theme">
+        <span class="theme-icon" aria-hidden="true">DAY</span>
+        <span class="theme-text">Day</span>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="reveal">
+        <p class="eyebrow">Project overview</p>
+        <h1>Emergency alerts powered by human-centered AI</h1>
+        <p>SafeSignal combines one-tap alerts, voice triggers, signal analysis, and trusted response networks to help people get support faster.</p>
+      </div>
+    </section>
+
+    <section class="section split-section">
+      <article class="content-card reveal">
+        <h2>Problem Statement</h2>
+        <p>Every day, people, especially women, children, elderly individuals, young adults, commuters, and people with health conditions, may face unsafe situations or sudden medical emergencies. During panic or health crises, they may freeze, forget to call for help, or be unable to use their phone.</p>
+      </article>
+      <article class="content-card reveal delay-1">
+        <h2>Solution Overview</h2>
+        <p>SafeSignal is an AI-powered emergency signal app that allows users to send instant distress alerts through one tap, voice command, or automatic AI detection. Alerts can be sent to nearby helpers, trusted contacts, and local authorities or emergency services based on the danger level.</p>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="section-heading reveal">
+        <p class="eyebrow">How the app works</p>
+        <h2>A clear flow from risk to response</h2>
+      </div>
+      <ol class="timeline">
+        <li class="reveal"><span>1</span>User feels unsafe or experiences emergency</li>
+        <li class="reveal"><span>2</span>App detects danger through one tap, voice command, or AI signals</li>
+        <li class="reveal"><span>3</span>App classifies the danger level</li>
+        <li class="reveal"><span>4</span>Alert is sent to trusted contacts, nearby helpers, and emergency support</li>
+        <li class="reveal"><span>5</span>User&rsquo;s live location and emergency status are shared</li>
+      </ol>
+    </section>
+
+    <section class="section">
+      <div class="content-card wide reveal">
+        <h2>AI/Tech Integration</h2>
+        <p>AI and technology make emergency response faster, smarter, and more automatic. The app can detect danger or health emergencies through abnormal heart rate, emergency voice keywords, panic in the user&rsquo;s voice, sudden movement, falling, inactivity, and live location changes. For the MVP, simulate AI detection using sample heart rate, voice, movement, and response data.</p>
+      </div>
+    </section>
+
+    <section class="section demo-section" id="danger-demo">
+      <div class="section-heading reveal">
+        <p class="eyebrow">Danger level system</p>
+        <h2>Try the simulated AI danger classifier</h2>
+      </div>
+      <div class="demo-grid">
+        <form class="demo-card reveal" id="signal-form">
+          <fieldset>
+            <legend>Choose sample signals</legend>
+            <label>
+              <input type="checkbox" name="signal" value="heart">
+              Abnormal heart rate
+            </label>
+            <label>
+              <input type="checkbox" name="signal" value="voice">
+              Emergency voice keyword
+            </label>
+            <label>
+              <input type="checkbox" name="signal" value="movement">
+              Sudden movement or fall
+            </label>
+            <label>
+              <input type="checkbox" name="signal" value="response">
+              No response from user
+            </label>
+          </fieldset>
+          <div class="button-row">
+            <button class="btn btn-primary" type="button" id="analyze-btn">Analyze Signals</button>
+            <button class="btn btn-light" type="reset" id="reset-btn">Reset</button>
+          </div>
+        </form>
+        <article class="result-card reveal delay-1" aria-live="polite">
+          <p class="eyebrow">Current result</p>
+          <h3 id="danger-level">Level 1: Caution</h3>
+          <p id="danger-message">The app checks if the user is okay and prepares support options.</p>
+          <div class="level-meter" aria-hidden="true">
+            <span class="active"></span>
+            <span></span>
+            <span></span>
+          </div>
+        </article>
+      </div>
+      <div class="card-grid three">
+        <article class="level-card reveal">
+          <h3>Level 1: Caution</h3>
+          <p>Checks if the user is okay.</p>
+        </article>
+        <article class="level-card warning reveal delay-1">
+          <h3>Level 2: Warning</h3>
+          <p>Alerts trusted contacts and nearby helpers.</p>
+        </article>
+        <article class="level-card emergency reveal delay-2">
+          <h3>Level 3: Emergency</h3>
+          <p>Alerts trusted contacts, nearby helpers, and emergency services.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading reveal">
+        <p class="eyebrow">MVP features</p>
+        <h2>Focused features for a strong first prototype</h2>
+      </div>
+      <div class="pill-list reveal">
+        <span>Mobile app UI concept</span>
+        <span>One-tap emergency signal button</span>
+        <span>Voice command trigger</span>
+        <span>AI danger detection simulation</span>
+        <span>Trusted contact list</span>
+        <span>Nearby helper consent system</span>
+        <span>Live location sharing</span>
+        <span>Danger level display</span>
+        <span>Alert confirmation screen</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading reveal">
+        <p class="eyebrow">User journey</p>
+        <h2>Designed around real emergency needs</h2>
+      </div>
+      <div class="card-grid three">
+        <article class="journey-card reveal">
+          <h3>Night commute</h3>
+          <p>An NYC resident walking alone at night needs a fast emergency signal app to alert nearby helpers, trusted contacts, and local authorities in order to get immediate help when they feel unsafe.</p>
+        </article>
+        <article class="journey-card reveal delay-1">
+          <h3>Health emergency</h3>
+          <p>A person with a health condition needs an AI-powered emergency app that can detect warning signs and automatically send alerts in order to get help when they cannot call for assistance.</p>
+        </article>
+        <article class="journey-card reveal delay-2">
+          <h3>Trusted response</h3>
+          <p>A trusted contact or nearby helper needs to receive the user&rsquo;s live location, danger level, and emergency status in order to respond quickly and coordinate support.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>SafeSignal | Project concept and MVP plan</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
