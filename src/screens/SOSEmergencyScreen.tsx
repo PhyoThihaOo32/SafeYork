@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { ActionButton, BodyText, Card, DangerBadge, KeyValue, Screen, SectionTitle } from "../components/ui";
 import { colors } from "../constants/theme";
-import { useSafeBeacon } from "../state/SafeBeaconContext";
+import { useSafeYork } from "../state/SafeYorkContext";
 
 export default function SOSEmergencyScreen() {
   const router = useRouter();
-  const { dangerLevel, notifications, emergencySummary, triggerAlert, markSafe } = useSafeBeacon();
+  const { dangerLevel, notifications, emergencySummary, triggerAlert, markSafe } = useSafeYork();
   const [tapCount, setTapCount] = useState(0);
   const [countdown, setCountdown] = useState<number | null>(null);
 
@@ -60,7 +60,7 @@ export default function SOSEmergencyScreen() {
             }} />
           </>
         ) : (
-          <BodyText>Triple tap the button. After the third tap, SafeBeacon starts a cancel countdown before simulated escalation.</BodyText>
+          <BodyText>Triple tap the button. After the third tap, SafeYork starts a cancel countdown before simulated escalation.</BodyText>
         )}
       </Card>
       {notifications.length ? (

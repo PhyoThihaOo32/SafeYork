@@ -8,13 +8,13 @@ export default function OnboardingScreen() {
 
   return (
     <Screen
-      title="SafeBeacon"
+      title="SafeYork"
       subtitle="AI-powered personal safety for CUNY students, commuters, caregivers, and people who need fast support in unsafe or medical emergencies."
     >
       <Card>
         <SectionTitle>CUNY AI Innovation Challenge 2026</SectionTitle>
         <BodyText>Track: AI for Health and Public Good</BodyText>
-        <BodyText>All emergency actions in this app are simulated. SafeBeacon does not call 911, police, strangers, or send real SMS.</BodyText>
+        <BodyText>All emergency actions in this app are simulated. SafeYork does not call 911, police, strangers, or send real SMS.</BodyText>
       </Card>
       <Card>
         <SectionTitle>Team</SectionTitle>

@@ -30,7 +30,7 @@ export const initialEvents: SafetyEvent[] = [
     timestamp: new Date().toLocaleString(),
     type: "Demo Mode Ready",
     dangerLevel: 0,
-    detail: "SafeBeacon started in simulated emergency mode. No real calls, SMS, audio recording, or 911 contact.",
+    detail: "SafeYork started in simulated emergency mode. No real calls, SMS, audio recording, or 911 contact.",
   },
 ];
 

@@ -1,11 +1,8 @@
 {
-  "buildCommand": "npm run build:web",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
+  "buildCommand": null,
+  "outputDirectory": ".",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/project", "destination": "/project.html" },
+    { "source": "/about", "destination": "/about.html" }
   ]
 }

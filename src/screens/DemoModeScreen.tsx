@@ -1,8 +1,8 @@
 import { ActionButton, BodyText, Card, DangerBadge, KeyValue, Screen, ScreenLink, SectionTitle } from "../components/ui";
-import { useSafeBeacon } from "../state/SafeBeaconContext";
+import { useSafeYork } from "../state/SafeYorkContext";
 
 export default function DemoModeScreen() {
-  const { dangerLevel, triggerAlert, analyzeText, simulateBiometric, refreshLocation, notifications, markSafe } = useSafeBeacon();
+  const { dangerLevel, triggerAlert, analyzeText, simulateBiometric, refreshLocation, notifications, markSafe } = useSafeYork();
 
   return (
     <Screen title="Demo Mode" subtitle="Presenter controls for judges. Every action is simulated and labeled.">

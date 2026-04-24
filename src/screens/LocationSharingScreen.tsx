@@ -2,10 +2,10 @@ import { Text, View } from "react-native";
 import { ActionButton, BodyText, Card, KeyValue, Screen, SectionTitle } from "../components/ui";
 import { colors } from "../constants/theme";
 import { demoLocations } from "../data/demoData";
-import { useSafeBeacon } from "../state/SafeBeaconContext";
+import { useSafeYork } from "../state/SafeYorkContext";
 
 export default function LocationSharingScreen() {
-  const { location, refreshLocation } = useSafeBeacon();
+  const { location, refreshLocation } = useSafeYork();
 
   return (
     <Screen title="Location Sharing" subtitle="Uses Expo Location when available, with a simulated fallback for reliable demos.">

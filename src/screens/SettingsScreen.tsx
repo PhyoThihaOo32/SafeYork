@@ -3,10 +3,10 @@ import { Pressable, Text, View } from "react-native";
 import { ActionButton, BodyText, Card, KeyValue, Screen, SectionTitle } from "../components/ui";
 import { colors } from "../constants/theme";
 import { safetyChecklist } from "../data/demoData";
-import { useSafeBeacon } from "../state/SafeBeaconContext";
+import { useSafeYork } from "../state/SafeYorkContext";
 
 export default function SettingsScreen() {
-  const { helperOptIn, shareMedical, toggleHelperOptIn, toggleMedicalSharing, triggerAlert, logEvent } = useSafeBeacon();
+  const { helperOptIn, shareMedical, toggleHelperOptIn, toggleMedicalSharing, triggerAlert, logEvent } = useSafeYork();
   const [fakeCall, setFakeCall] = useState(false);
   const [checked, setChecked] = useState<string[]>(["Phone"]);
 
@@ -22,7 +22,7 @@ export default function SettingsScreen() {
       <Card>
         <SectionTitle>Phone Widget Demo</SectionTitle>
         <View style={{ padding: 16, borderRadius: 22, backgroundColor: "#0b1426", borderWidth: 1, borderColor: colors.border }}>
-          <Text style={{ color: colors.text, fontWeight: "900", fontSize: 18 }}>SafeBeacon Widget</Text>
+          <Text style={{ color: colors.text, fontWeight: "900", fontSize: 18 }}>SafeYork Widget</Text>
           <Text style={{ color: colors.muted, marginVertical: 8 }}>Walking Home: 12:45 left</Text>
           <ActionButton label="Triple-Tap Widget SOS Simulation" tone="red" onPress={() => triggerAlert(3, "Phone widget quick access demo", "emergency")} />
         </View>

@@ -1,8 +1,8 @@
 import { Card, DangerBadge, KeyValue, Screen, SectionTitle } from "../components/ui";
-import { useSafeBeacon } from "../state/SafeBeaconContext";
+import { useSafeYork } from "../state/SafeYorkContext";
 
 export default function SafetyHistoryScreen() {
-  const { history } = useSafeBeacon();
+  const { history } = useSafeYork();
 
   return (
     <Screen title="Safety History" subtitle="Newest events first. All demo actions are logged for accountability and presentation review.">

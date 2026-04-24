@@ -8,7 +8,7 @@ export const AlertService = {
     location: LocationInfo;
   }) {
     const riskLabel = args.analysis.riskLevel === 3 ? "High" : args.analysis.riskLevel === 2 ? "Medium" : "Caution";
-    return `SafeBeacon Demo Alert: ${args.userName} may need help. Mode: ${args.mode.name}. Risk Level: ${riskLabel}. Last known location: ${args.location.name} (${args.location.source}). Recommended action: ${args.analysis.recommendedAction}`;
+    return `SafeYork Demo Alert: ${args.userName} may need help. Mode: ${args.mode.name}. Risk Level: ${riskLabel}. Last known location: ${args.location.name} (${args.location.source}). Recommended action: ${args.analysis.recommendedAction}`;
   },
 
   simulateNotifications(contacts: Contact[], level: number, helperOptIn: boolean, message: string): NotificationCard[] {

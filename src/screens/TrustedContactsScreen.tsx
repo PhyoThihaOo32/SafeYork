@@ -2,10 +2,10 @@ import { useState } from "react";
 import { TextInput, View } from "react-native";
 import { ActionButton, BodyText, Card, KeyValue, Screen, SectionTitle } from "../components/ui";
 import { colors } from "../constants/theme";
-import { useSafeBeacon } from "../state/SafeBeaconContext";
+import { useSafeYork } from "../state/SafeYorkContext";
 
 export default function TrustedContactsScreen() {
-  const { contacts, addContact } = useSafeBeacon();
+  const { contacts, addContact } = useSafeYork();
   const [name, setName] = useState("Guardian Contact");
   const [relationship, setRelationship] = useState("Family");
   const [email, setEmail] = useState("guardian@example.com");
@@ -51,7 +51,7 @@ export default function TrustedContactsScreen() {
           <KeyValue label="Medical sharing" value={contact.shareMedical ? "Allowed" : "Not allowed"} />
         </Card>
       ))}
-      <BodyText>SafeBeacon never displays home address or full phone numbers in public helper views.</BodyText>
+      <BodyText>SafeYork never displays home address or full phone numbers in public helper views.</BodyText>
     </Screen>
   );
 }

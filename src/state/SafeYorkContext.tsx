@@ -18,7 +18,7 @@ import {
   SafetyStatus,
 } from "../models/types";
 
-type SafeBeaconState = {
+type SafeYorkState = {
   userName: string;
   status: SafetyStatus;
   dangerLevel: DangerLevel;
@@ -62,9 +62,9 @@ const defaultSummary = GuardianAIService.generateSummary({
   sessionDuration: "00:00",
 });
 
-const SafeBeaconContext = createContext<SafeBeaconState | null>(null);
+const SafeYorkContext = createContext<SafeYorkState | null>(null);
 
-export function SafeBeaconProvider({ children }: { children: React.ReactNode }) {
+export function SafeYorkProvider({ children }: { children: React.ReactNode }) {
   const [userName] = useState("CUNY Student");
   const [status, setStatus] = useState<SafetyStatus>("Safe");
   const [dangerLevel, setDangerLevel] = useState<DangerLevel>(0);
@@ -82,9 +82,9 @@ export function SafeBeaconProvider({ children }: { children: React.ReactNode }) 
   const [demoMode] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem("safebeacon-state").then((stored) => {
+    AsyncStorage.getItem("safeyork-state").then((stored) => {
       if (!stored) return;
-      const parsed = JSON.parse(stored) as Partial<SafeBeaconState>;
+      const parsed = JSON.parse(stored) as Partial<SafeYorkState>;
       if (parsed.contacts) setContacts(parsed.contacts);
       if (parsed.history) setHistory(parsed.history);
       if (typeof parsed.helperOptIn === "boolean") setHelperOptIn(parsed.helperOptIn);
@@ -95,7 +95,7 @@ export function SafeBeaconProvider({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     AsyncStorage.setItem(
-      "safebeacon-state",
+      "safeyork-state",
       JSON.stringify({ contacts, history, helperOptIn, shareMedical, medicalNotes })
     ).catch(() => undefined);
   }, [contacts, history, helperOptIn, shareMedical, medicalNotes]);
@@ -222,13 +222,13 @@ export function SafeBeaconProvider({ children }: { children: React.ReactNode }) 
     [status, dangerLevel, selectedMode, location, biometric, analysis, contacts, helperOptIn, shareMedical, medicalNotes, notifications, history, emergencySummary]
   );
 
-  return <SafeBeaconContext.Provider value={value}>{children}</SafeBeaconContext.Provider>;
+  return <SafeYorkContext.Provider value={value}>{children}</SafeYorkContext.Provider>;
 }
 
-export function useSafeBeacon() {
-  const context = useContext(SafeBeaconContext);
+export function useSafeYork() {
+  const context = useContext(SafeYorkContext);
   if (!context) {
-    throw new Error("useSafeBeacon must be used within SafeBeaconProvider");
+    throw new Error("useSafeYork must be used within SafeYorkProvider");
   }
   return context;
 }

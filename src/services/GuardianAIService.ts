@@ -111,7 +111,7 @@ export const GuardianAIService = {
     const medicalContext = args.shareMedical ? args.medicalNotes : "Medical notes hidden by user privacy setting.";
 
     return {
-      headline: `${args.userName} triggered a ${level} SafeBeacon alert near ${args.location.name}.`,
+      headline: `${args.userName} triggered a ${level} SafeYork alert near ${args.location.name}.`,
       description: `${args.triggerType} during ${args.modeName}. Location is ${args.location.source === "gps" ? "GPS" : "simulated"}: ${args.location.name}. Signals: ${args.analysis.reasoning}. Session duration: ${args.sessionDuration}.`,
       medicalContext,
       recommendedFirstResponse: args.analysis.recommendedAction,

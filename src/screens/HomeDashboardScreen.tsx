@@ -2,14 +2,14 @@ import { useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { ActionButton, BodyText, Card, DangerBadge, KeyValue, Screen, ScreenLink, SectionTitle } from "../components/ui";
 import { colors } from "../constants/theme";
-import { useSafeBeacon } from "../state/SafeBeaconContext";
+import { useSafeYork } from "../state/SafeYorkContext";
 
 export default function HomeDashboardScreen() {
   const router = useRouter();
-  const { status, dangerLevel, selectedMode, location, biometric, triggerAlert, logEvent } = useSafeBeacon();
+  const { status, dangerLevel, selectedMode, location, biometric, triggerAlert, logEvent } = useSafeYork();
 
   return (
-    <Screen title="SafeBeacon" subtitle="Large controls, minimal steps, privacy-first simulated alerts.">
+    <Screen title="SafeYork" subtitle="Large controls, minimal steps, privacy-first simulated alerts.">
       <DangerBadge level={dangerLevel} />
       <Card style={{ alignItems: "center", gap: 18 }}>
         <Text style={{ color: colors.text, fontSize: 18, fontWeight: "900" }}>Current Status: {status}</Text>

@@ -1,8 +1,8 @@
 import { ActionButton, BodyText, Card, KeyValue, Screen, SectionTitle } from "../components/ui";
-import { useSafeBeacon } from "../state/SafeBeaconContext";
+import { useSafeYork } from "../state/SafeYorkContext";
 
 export default function NearbyHelperScreen() {
-  const { helperOptIn, toggleHelperOptIn, notifications } = useSafeBeacon();
+  const { helperOptIn, toggleHelperOptIn, notifications } = useSafeYork();
 
   return (
     <Screen title="Nearby Helper Network" subtitle="Helpers must consent before receiving any simulated nearby emergency alerts.">

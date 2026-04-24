@@ -3,10 +3,10 @@ import { Pressable, Text, View } from "react-native";
 import { ActionButton, BodyText, Card, Screen, SectionTitle } from "../components/ui";
 import { colors } from "../constants/theme";
 import { safetyModes } from "../data/demoData";
-import { useSafeBeacon } from "../state/SafeBeaconContext";
+import { useSafeYork } from "../state/SafeYorkContext";
 
 export default function SafeModeScreen() {
-  const { selectedMode, setSelectedMode, triggerAlert, markSafe, logEvent, analyzeText } = useSafeBeacon();
+  const { selectedMode, setSelectedMode, triggerAlert, markSafe, logEvent, analyzeText } = useSafeYork();
   const [secondsLeft, setSecondsLeft] = useState(selectedMode.minutes * 60);
   const [active, setActive] = useState(false);
   const [grace, setGrace] = useState(false);

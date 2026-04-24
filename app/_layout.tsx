@@ -1,11 +1,11 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { SafeBeaconProvider } from "../src/state/SafeBeaconContext";
+import { SafeYorkProvider } from "../src/state/SafeYorkContext";
 import { colors } from "../src/constants/theme";
 
 export default function RootLayout() {
   return (
-    <SafeBeaconProvider>
+    <SafeYorkProvider>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
@@ -13,6 +13,6 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: colors.background },
         }}
       />
-    </SafeBeaconProvider>
+    </SafeYorkProvider>
   );
 }

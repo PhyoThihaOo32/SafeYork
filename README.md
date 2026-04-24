@@ -1,108 +1,175 @@
 # SafeBeacon
 
-## Track
-CUNY AI Innovation Challenge 2026  
-AI for Health and Public Good
+AI-powered personal safety app for emergency alerts, location sharing, and fast trusted-contact support.
 
-## Problem Statement
-In emergency situations such as being followed late at night, attacked, kidnapped, or facing sudden medical conditions, people often struggle to get immediate help. Victims may be unable to communicate clearly, while others do not know their location, what is happening, or who to contact. Reaching out one by one is slow and unreliable. As a result, critical time is lost when every second matters.
+## Overview
 
-## Solution
-SafeBeacon is an AI-powered personal safety app that helps users get emergency support through one tap, voice command, or AI detection. The app classifies danger levels, notifies the right people, shares location, and creates AI-generated emergency summaries.
+SafeBeacon is a personal safety application designed to help users get emergency support quickly when they feel unsafe, are walking alone, riding alone, or experiencing a medical emergency.
 
-This is a polished working demo app, not a production emergency system. It does not call police, 911, strangers, or emergency services. It does not send real SMS or real emergency alerts. All alert behavior is clearly labeled as Demo Mode or simulation.
+The app allows users to send alerts through one tap, voice command, safety timer, or AI detection. SafeBeacon can notify trusted contacts, share location, classify danger levels, and guide the right emergency response while protecting user privacy.
+
+## Problem
+
+In emergency situations, people may panic, freeze, lose consciousness, or become unable to call for help. Traditional phone calls can be slow, missed, muted, or mistaken for normal communication.
+
+SafeBeacon solves this by creating a faster bridge between a person in crisis and the people who can help.
+
+## Key Features
+
+### One-Tap SOS
+
+Users can quickly trigger an emergency alert with a single tap.
+
+### Get Home Safe Timer
+
+Users can start a timer while walking home, riding alone, or feeling unsafe. If they do not respond when time runs out, the app begins an escalation process.
+
+### Voice Command Trigger
+
+Users can activate an alert using a safe word or emergency phrase.
+
+### Guardian AI Risk Detection
+
+AI analyzes the situation and classifies the danger level based on user response, timer status, selected safety mode, text input, and simulated emergency signals.
+
+### Danger Level System
+
+Level 1: Caution  
+Checks if the user is okay.
+
+Level 2: Warning  
+Alerts trusted contacts and nearby opted-in helpers.
+
+Level 3: Emergency  
+Alerts trusted contacts, nearby helpers, and emergency support simulation.
+
+### Trusted Contacts
+
+Users can add family, friends, guardians, roommates, or campus safety contacts who should be notified during an emergency.
+
+### Location Sharing
+
+The app shares the user’s live or simulated location during an emergency so responders know where help is needed.
+
+### Emergency Profile
+
+Displays important information such as first name, medical notes, allergy notes, and trusted contact details if the user cannot communicate.
+
+### Nearby Helper Network
+
+Users can opt in to help nearby people in trouble. Helpers only receive limited emergency details to protect user privacy.
+
+### Safety History
+
+The app logs safety events such as SOS triggers, timer sessions, danger levels, alerts, and check-ins.
+
+## AI Integration
+
+SafeBeacon uses Guardian AI to support emergency decision-making.
+
+Guardian AI can:
+
+- Analyze danger level
+- Detect emergency keywords
+- Identify possible distress or no-response situations
+- Generate emergency messages
+- Recommend the next action
+- Explain why a danger level was selected
+
+For the MVP, some AI, location, biometric, and notification features may be simulated for a safe and reliable demo.
+
+## Tech Stack
+
+- React Native
+- Expo
+- TypeScript
+- NativeWind or React Native styling
+- Expo Location
+- Expo Sensors
+- Firebase Realtime Database
+- Claude API or OpenAI API
+- Local storage for profile and safety history
+
+## MVP Features
+
+- Home dashboard
+- SOS emergency button
+- Get Home Safe timer
+- Voice command trigger
+- Guardian AI analysis
+- AI-generated emergency message
+- Three-level danger system
+- Trusted contacts
+- Emergency profile
+- Location sharing simulation
+- Nearby helper simulation
+- Safety history log
+- Demo mode
+
+## Public Interest Technology
+
+SafeBeacon is designed with public good in mind.
+
+The project focuses on:
+
+- Safety
+- Accessibility
+- Privacy
+- Consent
+- Equity
+- Accountability
+- Community support
+
+Users control who receives alerts, what information is shared, and whether they want to participate as nearby helpers.
 
 ## Target Users
-- Students
-- College campus communities
+
+- College students
 - NYC commuters
 - Women walking alone
 - Children
 - Elderly users
-- People with medical conditions
-- General public long term
+- People with health conditions
+- Ride-share passengers
+- General public
 
-## AI Integration
-Guardian AI performs:
-- Biometric anomaly detection simulation
-- Voice and text distress analysis
-- Coercion risk detection
-- Emergency triage summary generation
-- Explainable AI reasoning
-- Risk classification into Level 1, Level 2, Level 3
+## Demo Flow
 
-If no Claude or OpenAI API key is available, the app uses realistic local fallback logic and labels the behavior as AI Simulation Mode.
+1. User opens SafeBeacon.
+2. User starts Walking Home mode.
+3. Timer begins.
+4. User does not respond when the timer ends.
+5. App shows a subtle check-in prompt.
+6. Guardian AI analyzes the situation.
+7. App assigns a danger level.
+8. Trusted contacts are notified through simulation.
+9. Location and emergency message are displayed.
+10. Event is saved in safety history.
 
-## Public Interest Technology
-SafeBeacon demonstrates:
-- Safety and equity
-- Accessibility
-- Privacy and consent
-- Accountability
-- Community responsibility
+## Future Improvements
 
-Privacy safeguards include masked phone numbers, no home address display, medical sharing controls, helper opt-in consent, simulated audio monitoring, and minimum necessary information for nearby helpers.
+- Real push notifications
+- SMS and email alerts
+- Apple Watch integration
+- Wearable emergency button
+- Smart bracelet for children and elderly users
+- Real biometric detection
+- Campus safety dashboard
+- Smart home API integration
+- Public emergency system partnerships
+- Multi-language support
 
-## Core Demo Features
-- Onboarding screen
-- Home dashboard with large SOS button
-- SOS emergency screen with triple-tap and cancel countdown
-- Safe Mode / Get Home Safe timer
-- Guardian AI analysis screen
-- Trusted contacts
-- Emergency profile
-- Nearby helper opt-in
-- Location sharing / safe area screen
-- Safety history timeline
-- Settings with fake call, widget demo, night prompt, and checklist
-- Demo mode controls
-- Future vision roadmap
+## Team Members
 
-## Alert Levels
-- Level 1: Caution, yellow, checks if the user is okay
-- Level 2: Warning, orange, notifies trusted contacts and nearby opted-in helpers
-- Level 3: Emergency, red, notifies trusted contacts, nearby helpers, and emergency support simulation
+- Kyawt Kyawt Htun — UI / Front-End
+- Zin Min Wai — Signal Sender / AI NLP
+- Phyo Thiha Oo — Location / Biometrics
+- Member 4 — Contacts / Backend
 
-## Challenges
-- Biometric accuracy without wearables
-- False positives
-- Panic-state usability
-- API fallback
-- Privacy and helper safety
+## Project Impact
 
-## What We Learned
-- Designing for crisis is different from designing for convenience
-- AI should support decision-making, not create confusion
-- Community safety requires consent and privacy
-- Working prototype is different from trustworthy production product
+SafeBeacon is more than an emergency button. It is an AI-powered safety network designed to help people get support when they are scared, frozen, medically unable to respond, or in immediate danger.
 
-## Next Steps
-- Validated rPPG
-- Real notification APIs
-- Firebase helper network
-- Wearables
-- Campus safety partnerships
-- Smart home APIs
-- NYC public infrastructure integration
+The goal is simple:
 
-## Demo Script
-SafeBeacon is an AI-powered personal safety app designed first for students and college campuses. A user can press SOS, speak a safe word, or start a Get Home Safe timer when walking home or riding alone. If the user does not respond, SafeBeacon first gives a subtle check-in reminder. If there is still no response, Guardian AI analyzes the situation, assigns a danger level, generates an emergency message, shares location, and escalates alerts to the right people. Level 1 checks on the user, Level 2 alerts trusted contacts and nearby helpers, and Level 3 alerts trusted contacts, nearby helpers, and emergency support simulation. SafeBeacon is designed to reduce emergency response delays while protecting privacy.
-
-## Run Locally
-```bash
-npm install
-npm run start
-```
-
-Then open the app in Expo Go, an iOS simulator, Android emulator, or the Expo web target.
-
-## Tech Stack
-- React Native
-- Expo SDK 54
-- TypeScript
-- Expo Router
-- AsyncStorage
-- Expo Location with simulated fallback
-- Expo Sensors planned with simulated fallback
-- Local Guardian AI simulation with API-ready service abstraction
-# SafeYork
+Help should reach people faster when every second matters.

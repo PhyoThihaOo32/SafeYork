@@ -1,10 +1,10 @@
 import { TextInput } from "react-native";
 import { ActionButton, BodyText, Card, KeyValue, Screen, SectionTitle } from "../components/ui";
 import { colors } from "../constants/theme";
-import { useSafeBeacon } from "../state/SafeBeaconContext";
+import { useSafeYork } from "../state/SafeYorkContext";
 
 export default function EmergencyProfileScreen() {
-  const { contacts, medicalNotes, setMedicalNotes, shareMedical, toggleMedicalSharing, logEvent } = useSafeBeacon();
+  const { contacts, medicalNotes, setMedicalNotes, shareMedical, toggleMedicalSharing, logEvent } = useSafeYork();
   const primary = contacts[0];
 
   return (

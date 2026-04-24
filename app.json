@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "SafeBeacon",
-    "slug": "safebeacon",
+    "name": "SafeYork",
+    "slug": "safeyork",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "safebeacon",
+    "scheme": "safeyork",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "plugins": [
@@ -12,7 +12,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "SafeBeacon uses location only in Demo Mode to show how emergency location sharing would work."
+          "locationAlwaysAndWhenInUsePermission": "SafeYork uses location only in Demo Mode to show how emergency location sharing would work."
         }
       ]
     ],

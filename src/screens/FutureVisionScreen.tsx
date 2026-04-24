@@ -3,7 +3,7 @@ import { roadmap } from "../data/demoData";
 
 export default function FutureVisionScreen() {
   return (
-    <Screen title="Future Vision" subtitle="How SafeBeacon could grow after the hackathon while keeping privacy, consent, and safety first.">
+    <Screen title="Future Vision" subtitle="How SafeYork could grow after the hackathon while keeping privacy, consent, and safety first.">
       {roadmap.map((phase) => (
         <Card key={phase.phase}>
           <SectionTitle>{phase.phase}</SectionTitle>

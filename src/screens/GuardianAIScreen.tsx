@@ -2,10 +2,10 @@ import { useState } from "react";
 import { TextInput, View } from "react-native";
 import { ActionButton, BodyText, Card, DangerBadge, KeyValue, Screen, SectionTitle } from "../components/ui";
 import { colors } from "../constants/theme";
-import { useSafeBeacon } from "../state/SafeBeaconContext";
+import { useSafeYork } from "../state/SafeYorkContext";
 
 export default function GuardianAIScreen() {
-  const { dangerLevel, analysis, biometric, analyzeText, simulateBiometric, triggerAlert } = useSafeBeacon();
+  const { dangerLevel, analysis, biometric, analyzeText, simulateBiometric, triggerAlert } = useSafeYork();
   const [input, setInput] = useState("I am fine do not call me");
 
   return (
