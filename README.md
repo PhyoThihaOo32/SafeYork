@@ -1,175 +1,181 @@
-# SafeBeacon
+# SafeYork
 
-AI-powered personal safety app for emergency alerts, location sharing, and fast trusted-contact support.
+**AI-powered emergency alerts for faster help when every second matters.**
 
-## Overview
+SafeYork (powered by SafeSignal) bridges the gap between crisis and trusted support. In dangerous or medical emergencies, people may panic, freeze, or be unable to call for help — SafeYork detects danger automatically and alerts the right people instantly.
 
-SafeBeacon is a personal safety application designed to help users get emergency support quickly when they feel unsafe, are walking alone, riding alone, or experiencing a medical emergency.
+**Live site:** [safeyork.vercel.app](https://safeyork.vercel.app)
 
-The app allows users to send alerts through one tap, voice command, safety timer, or AI detection. SafeBeacon can notify trusted contacts, share location, classify danger levels, and guide the right emergency response while protecting user privacy.
+---
 
-## Problem
+## The Problem
 
-In emergency situations, people may panic, freeze, lose consciousness, or become unable to call for help. Traditional phone calls can be slow, missed, muted, or mistaken for normal communication.
+During a medical crisis, personal attack, or moment of panic, fumbling through a phone to call 911 can cost critical seconds. Many people — especially women, elderly individuals, students, and those with health conditions — need a faster, simpler way to signal for help.
 
-SafeBeacon solves this by creating a faster bridge between a person in crisis and the people who can help.
+## The Solution
 
-## Key Features
+SafeYork uses AI signal analysis, biometric monitoring, and a one-tap alert system to:
 
-### One-Tap SOS
+- Detect emergencies automatically via heart rate, motion, and voice
+- Notify trusted contacts with location, danger level, and medical info
+- Escalate alerts through 3 danger levels up to emergency services
+- Give users full control over what is shared and with whom
 
-Users can quickly trigger an emergency alert with a single tap.
+---
 
-### Get Home Safe Timer
+## Features
 
-Users can start a timer while walking home, riding alone, or feeling unsafe. If they do not respond when time runs out, the app begins an escalation process.
+### 3-Level Danger System
+| Level | Status | Action |
+|-------|--------|--------|
+| 1 | Caution | App checks in, prepares support options |
+| 2 | Warning | Alerts trusted contacts and nearby helpers |
+| 3 | Emergency | Alerts contacts, helpers, and emergency services |
 
-### Voice Command Trigger
+### Guardian AI
+Analyzes combined signals — text responses, heart rate, motion, fall detection, and stillness — to assess risk and generate an emergency summary with recommended actions. Includes coercion risk detection.
 
-Users can activate an alert using a safe word or emergency phrase.
+### Safety Modes
+- Walking Home (15 min)
+- Ride Safety (20 min)
+- Home Alone (30 min)
+- Medical Emergency (5 min)
+- Custom Timer
 
-### Guardian AI Risk Detection
-
-AI analyzes the situation and classifies the danger level based on user response, timer status, selected safety mode, text input, and simulated emergency signals.
-
-### Danger Level System
-
-Level 1: Caution  
-Checks if the user is okay.
-
-Level 2: Warning  
-Alerts trusted contacts and nearby opted-in helpers.
-
-Level 3: Emergency  
-Alerts trusted contacts, nearby helpers, and emergency support simulation.
+### Multi-Trigger Alerts
+One-tap button · Voice command · AI auto-detection · Check-in timer
 
 ### Trusted Contacts
+Priority levels (Primary, Backup, Campus, Caregiver) with per-contact controls for location and medical info sharing.
 
-Users can add family, friends, guardians, roommates, or campus safety contacts who should be notified during an emergency.
+### Privacy & Consent
+Every data-sharing feature — location, medical notes, nearby helpers — requires explicit opt-in and can be toggled off at any time.
 
-### Location Sharing
-
-The app shares the user’s live or simulated location during an emergency so responders know where help is needed.
-
-### Emergency Profile
-
-Displays important information such as first name, medical notes, allergy notes, and trusted contact details if the user cannot communicate.
-
-### Nearby Helper Network
-
-Users can opt in to help nearby people in trouble. Helpers only receive limited emergency details to protect user privacy.
-
-### Safety History
-
-The app logs safety events such as SOS triggers, timer sessions, danger levels, alerts, and check-ins.
-
-## AI Integration
-
-SafeBeacon uses Guardian AI to support emergency decision-making.
-
-Guardian AI can:
-
-- Analyze danger level
-- Detect emergency keywords
-- Identify possible distress or no-response situations
-- Generate emergency messages
-- Recommend the next action
-- Explain why a danger level was selected
-
-For the MVP, some AI, location, biometric, and notification features may be simulated for a safe and reliable demo.
+---
 
 ## Tech Stack
 
-- React Native
-- Expo
-- TypeScript
-- NativeWind or React Native styling
-- Expo Location
-- Expo Sensors
-- Firebase Realtime Database
-- Claude API or OpenAI API
-- Local storage for profile and safety history
+| Layer | Technology |
+|-------|-----------|
+| Mobile | React Native 0.81.5, Expo 54 |
+| Navigation | Expo Router 6 |
+| Web | Static HTML / CSS / JavaScript |
+| Language | TypeScript 5.9 |
+| State | React Context API + AsyncStorage |
+| Location | Expo Location |
+| Sensors | Expo Sensors |
+| Deployment | Vercel |
 
-## MVP Features
+---
 
-- Home dashboard
-- SOS emergency button
-- Get Home Safe timer
-- Voice command trigger
-- Guardian AI analysis
-- AI-generated emergency message
-- Three-level danger system
-- Trusted contacts
-- Emergency profile
-- Location sharing simulation
-- Nearby helper simulation
-- Safety history log
-- Demo mode
+## Project Structure
+
+```
+SafeYork/
+├── app/                    # Expo Router screens
+│   ├── _layout.tsx         # Root layout + SafeYorkContext
+│   ├── home.tsx            # Dashboard
+│   ├── sos.tsx             # Emergency SOS
+│   ├── contacts.tsx        # Trusted contacts
+│   ├── guardian.tsx        # Guardian AI interface
+│   ├── safe-mode.tsx       # Safety mode selection
+│   ├── location.tsx        # Location sharing
+│   ├── profile.tsx         # Emergency profile
+│   ├── history.tsx         # Safety event log
+│   └── settings.tsx        # App settings
+├── src/                    # Services & context
+├── index.html              # Landing page
+├── project.html            # Project overview + interactive demo
+├── about.html              # About & team
+├── styles.css              # Shared styles (light/dark themes)
+└── script.js               # Navigation, theme toggle, demo logic
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- Expo CLI
+
+### Install
+```bash
+git clone https://github.com/PhyoThihaOo32/SafeYork-.git
+cd SafeYork-
+npm install
+```
+
+### Run
+```bash
+# Web browser
+npm run web
+
+# iOS simulator
+npm run ios
+
+# Android emulator
+npm run android
+```
+
+### Build for web
+```bash
+npm run build:web
+```
+
+---
+
+## Interactive Demo
+
+The project page includes a live danger level classifier — select biometric signals and click **Analyze Signals** to see how Guardian AI assesses risk in real time.
+
+The app ships with a CUNY student demo profile (contacts, NYC locations, medical notes) so you can walk through a full emergency scenario without any setup.
+
+**Demo flow:**
+1. Start Walking Home mode
+2. Timer begins — don't respond when it ends
+3. Guardian AI analyzes the situation
+4. Danger level is assigned and escalated
+5. Trusted contacts are notified (simulated)
+6. Location and emergency message are displayed
+7. Mark yourself safe to cancel
+
+---
 
 ## Public Interest Technology
 
-SafeBeacon is designed with public good in mind.
+SafeYork was built with Public Interest Technology guidelines at its core:
 
-The project focuses on:
+- **Safety** — rapid detection and multi-channel notification
+- **Equity** — designed for vulnerable populations (students, elderly, people with health conditions)
+- **Privacy** — user-controlled data sharing with explicit consent
+- **Accountability** — full event logging and transparent AI reasoning
+- **Accessibility** — semantic HTML, ARIA labels, reduced motion support, responsive design
 
-- Safety
-- Accessibility
-- Privacy
-- Consent
-- Equity
-- Accountability
-- Community support
+---
 
-Users control who receives alerts, what information is shared, and whether they want to participate as nearby helpers.
+## Team
 
-## Target Users
+| Name | Role |
+|------|------|
+| Kyawt Kyawt Htun | UI / Front-End |
+| Zin Min Wai | Signal Sender / AI NLP |
+| Phyo Thiha Oo | Location / Biometrics |
+| Thet Oo Maung | Contacts / Backend |
 
-- College students
-- NYC commuters
-- Women walking alone
-- Children
-- Elderly users
-- People with health conditions
-- Ride-share passengers
-- General public
+---
 
-## Demo Flow
+## Future Plans
 
-1. User opens SafeBeacon.
-2. User starts Walking Home mode.
-3. Timer begins.
-4. User does not respond when the timer ends.
-5. App shows a subtle check-in prompt.
-6. Guardian AI analyzes the situation.
-7. App assigns a danger level.
-8. Trusted contacts are notified through simulation.
-9. Location and emergency message are displayed.
-10. Event is saved in safety history.
-
-## Future Improvements
-
-- Real push notifications
-- SMS and email alerts
+- Real push notifications (SMS + email)
 - Apple Watch integration
-- Wearable emergency button
-- Smart bracelet for children and elderly users
-- Real biometric detection
+- Real biometric detection via wearables
 - Campus safety dashboard
-- Smart home API integration
-- Public emergency system partnerships
 - Multi-language support
+- Smart home and public emergency system partnerships
 
-## Team Members
+---
 
-- Kyawt Kyawt Htun — UI / Front-End
-- Zin Min Wai — Signal Sender / AI NLP
-- Phyo Thiha Oo — Location / Biometrics
-- Member 4 — Contacts / Backend
+## License
 
-## Project Impact
-
-SafeBeacon is more than an emergency button. It is an AI-powered safety network designed to help people get support when they are scared, frozen, medically unable to respond, or in immediate danger.
-
-The goal is simple:
-
-Help should reach people faster when every second matters.
+MIT
