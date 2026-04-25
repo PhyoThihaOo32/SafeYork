@@ -1,18 +1,16 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { SafeYorkProvider } from "../src/state/SafeYorkContext";
-import { colors } from "../src/constants/theme";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AppProvider } from "../src/context";
+import { c } from "../src/theme";
 
 export default function RootLayout() {
   return (
-    <SafeYorkProvider>
-      <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colors.background },
-        }}
-      />
-    </SafeYorkProvider>
+    <SafeAreaProvider>
+      <AppProvider>
+        <StatusBar style="light" />
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg }, animation: "none" }} />
+      </AppProvider>
+    </SafeAreaProvider>
   );
 }

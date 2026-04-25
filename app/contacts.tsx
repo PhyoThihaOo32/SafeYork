@@ -1,3 +1,5 @@
-import TrustedContactsScreen from "../src/screens/TrustedContactsScreen";
+import { Redirect } from "expo-router";
 
-export default TrustedContactsScreen;
+export default function Contacts() {
+  return <Redirect href="/home" />;
+}
