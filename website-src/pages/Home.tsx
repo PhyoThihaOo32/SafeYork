@@ -29,8 +29,7 @@ import { Link } from "wouter";
 
 const HERO_BG =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663596274880/dd29vAQoX4zXTUwpnz2neA/safeyork_hero_bg-X7eoEzeqPv6bQWVGFwtmQY.webp";
-const PHONE_MOCKUP =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663596274880/dd29vAQoX4zXTUwpnz2neA/safeyork_phone_mockup-88AR7QVsS4rUuDkW7gRTBj.webp";
+const HERO_VIDEO = "/manus-storage/safeyork_hero_video_68467ed2.mp4";
 const ABSTRACT_GRID =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663596274880/dd29vAQoX4zXTUwpnz2neA/safeyork_abstract_grid-mqfn7AKDEHLeEedMSmCAZ9.webp";
 
@@ -192,7 +191,7 @@ export default function Home() {
               </motion.div>
             </div>
 
-            {/* Right — phone mockup — 5 cols */}
+            {/* Right — hero video — 5 cols */}
             <div className="lg:col-span-5 flex justify-center">
               <motion.div
                 initial={{ opacity: 0, y: 60, scale: 0.9 }}
@@ -202,10 +201,13 @@ export default function Home() {
               >
                 <PulseRing />
                 <div className="absolute -inset-8 bg-[oklch(0.85_0.18_192/8%)] rounded-full blur-3xl" />
-                <img
-                  src={PHONE_MOCKUP}
-                  alt="SafeYork App"
-                  className="relative w-64 sm:w-72 lg:w-80 object-contain drop-shadow-[0_0_40px_oklch(0.85_0.18_192/25%)]"
+                <video
+                  src={HERO_VIDEO}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="relative w-64 sm:w-72 lg:w-80 rounded-2xl object-cover drop-shadow-[0_0_40px_oklch(0.85_0.18_192/25%)] border border-[oklch(0.85_0.18_192/15%)]"
                 />
               </motion.div>
             </div>
