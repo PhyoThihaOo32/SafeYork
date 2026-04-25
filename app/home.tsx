@@ -105,10 +105,23 @@ export default function HomeScreen() {
   const [aiSensors, setAiSensors] = useState<Record<SensorKey, boolean>>({
     heart: true, temp: true, voice: true, motion: true,
   });
+  const [drillActive, setDrillActive] = useState(false);
 
   function toggleSensor(key: SensorKey) {
     setAiSensors(prev => ({ ...prev, [key]: !prev[key] }));
   }
+
+  // Auto-reset after drill completes (~3.5s in emergency = ~5.5s total from button press)
+  useEffect(() => {
+    if (!drillActive || !isSOSActive) return;
+    const id = setTimeout(() => {
+      setIsSOSActive(false); setDangerLevel(0); setAlertLevel("none"); setTapCount(0);
+      setDetectionTrigger(null); setAlertMessage(""); setAiAnalyzing(false); setLastTapTime(0);
+      setHeartRate(72); setBodyTemp(98.6); setVoiceStress(12); setMotionPattern("NORMAL");
+      setDrillActive(false);
+    }, 3500);
+    return () => clearTimeout(id);
+  }, [drillActive, isSOSActive]);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -206,9 +219,9 @@ export default function HomeScreen() {
             heartRate={heartRate} bodyTemp={bodyTemp} voiceStress={voiceStress}
             motionPattern={motionPattern} isActive={isSOSActive}
             aiSensors={aiSensors} toggleSensor={toggleSensor}
-            onPanic={() => { setHeartRate(210); setVoiceStress(90); setBodyTemp(99.2); }}
-            onFall={() => setMotionPattern("FALL")}
-            onHeat={() => { setBodyTemp(104.5); setHeartRate(125); }}
+            onPanic={() => { setDrillActive(true); setHeartRate(210); setVoiceStress(90); setBodyTemp(99.2); }}
+            onFall={() => { setDrillActive(true); setMotionPattern("FALL"); }}
+            onHeat={() => { setDrillActive(true); setBodyTemp(104.5); setHeartRate(125); }}
           />
 
           <View style={[s.divider, { backgroundColor: theme.borderMid }]} />
