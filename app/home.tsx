@@ -193,10 +193,6 @@ export default function HomeScreen() {
 
           <View style={[s.divider, { backgroundColor: theme.borderMid }]} />
 
-          <BiometricsRow heartRate={heartRate} bodyTemp={bodyTemp} voiceStress={voiceStress} motionPattern={motionPattern} aiSensors={aiSensors} />
-
-          <View style={[s.divider, { backgroundColor: theme.borderMid }]} />
-
           {tapCount >= 3 && (
             <>
               <AlertSection tapCount={tapCount} alertLevel={alertLevel} alertMessage={alertMessage}
