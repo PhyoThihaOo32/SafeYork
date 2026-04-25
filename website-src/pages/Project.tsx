@@ -119,40 +119,46 @@ export default function Project() {
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <Navbar />
 
-      {/* ═══ HERO — with neon_network GIF ═══ */}
-      <section className="relative pt-32 pb-24 overflow-hidden">
-        {/* NYC skyline background */}
-        <div
-          className="absolute inset-0 opacity-[0.15]"
-          style={{ backgroundImage: `url(${HERO_BG})`, backgroundSize: "cover", backgroundPosition: "center bottom" }}
-        />
-        {/* Neon network GIF overlay */}
-        <div className="absolute inset-0 opacity-[0.08] pointer-events-none mix-blend-screen">
+      {/* ═══ HERO — with video background ═══ */}
+      <section className="relative pt-32 pb-28 overflow-hidden min-h-[85vh] flex items-center">
+        {/* Full-screen video background */}
+        <div className="absolute inset-0 pointer-events-none">
+          <video
+            src={CITY_VIDEO}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover opacity-[0.25]"
+          />
+        </div>
+        {/* Neon network GIF overlay for extra texture */}
+        <div className="absolute inset-0 opacity-[0.06] pointer-events-none mix-blend-screen">
           <img src={GIF_NEON_NETWORK} alt="" className="w-full h-full object-cover" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[oklch(0.06_0.02_260/70%)] via-[oklch(0.06_0.02_260/40%)] to-[oklch(0.08_0.02_260)]" />
+        {/* Dark gradient overlays for readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[oklch(0.06_0.02_260/80%)] via-[oklch(0.06_0.02_260/50%)] to-[oklch(0.08_0.02_260)]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.06_0.02_260/60%)] via-transparent to-[oklch(0.06_0.02_260/40%)]" />
 
         <div className="container relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left text */}
+          <div className="max-w-3xl">
             <motion.div
-              className="lg:col-span-7"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[oklch(0.85_0.18_192/20%)] bg-[oklch(0.85_0.18_192/5%)] mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[oklch(0.85_0.18_192/25%)] bg-[oklch(0.85_0.18_192/8%)] backdrop-blur-sm mb-6">
                 <Layers className="w-3.5 h-3.5 text-[oklch(0.85_0.18_192)]" />
                 <span className="text-xs font-[family-name:var(--font-mono)] text-[oklch(0.85_0.18_192)] tracking-widest uppercase">
                   Project Overview
                 </span>
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-[1.1]">
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 leading-[1.05]">
                 Building the{" "}
                 <span className="neon-text-cyan">SafeYork</span>{" "}
                 <span className="text-white">Platform</span>
               </h1>
-              <p className="text-lg text-[oklch(0.6_0.02_260)] max-w-xl leading-relaxed mb-8">
+              <p className="text-lg sm:text-xl text-[oklch(0.7_0.02_260)] max-w-2xl leading-relaxed mb-10">
                 An AI-powered personal safety app that helps users send emergency alerts through one tap, voice command, safety timer, or AI detection — bridging the gap between crisis and help.
               </p>
               <div className="flex flex-wrap gap-4">
@@ -161,36 +167,11 @@ export default function Project() {
                   { label: "3-Level Danger System", icon: AlertTriangle },
                   { label: "Guardian AI", icon: Brain },
                 ].map((tag, i) => (
-                  <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[oklch(0.12_0.02_260/80%)] border border-[oklch(0.85_0.18_192/10%)]">
+                  <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-md bg-[oklch(0.1_0.02_260/70%)] border border-[oklch(0.85_0.18_192/15%)] backdrop-blur-sm">
                     <tag.icon className="w-3.5 h-3.5 text-[oklch(0.85_0.18_192)]" />
-                    <span className="text-xs text-[oklch(0.7_0.01_260)] font-medium">{tag.label}</span>
+                    <span className="text-xs text-[oklch(0.8_0.01_260)] font-medium">{tag.label}</span>
                   </div>
                 ))}
-              </div>
-            </motion.div>
-
-            {/* Right — futuristic city video */}
-            <motion.div
-              className="lg:col-span-5"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-            >
-              <div className="relative rounded-2xl overflow-hidden border border-[oklch(0.85_0.18_192/15%)] shadow-[0_0_60px_oklch(0.85_0.18_192/10%)]">
-                <video
-                  src={CITY_VIDEO}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full aspect-video object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.06_0.02_260)] via-transparent to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <p className="text-xs font-[family-name:var(--font-mono)] text-[oklch(0.85_0.18_192/80%)] tracking-wider">
-                    SAFEYORK // AI SAFETY NETWORK
-                  </p>
-                </div>
               </div>
             </motion.div>
           </div>
