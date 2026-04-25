@@ -106,6 +106,12 @@ export default function HomeScreen() {
     heart: true, temp: true, voice: true, motion: true,
   });
   const [drillActive, setDrillActive] = useState(false);
+  const [journeyActive, setJourneyActive] = useState(false);
+  const [journeyMins, setJourneyMins] = useState(10);
+  const [journeySecsLeft, setJourneySecsLeft] = useState(0);
+  const [isHelper, setIsHelper] = useState(false);
+  const [voiceListening, setVoiceListening] = useState(false);
+  const [alertTimestamp, setAlertTimestamp] = useState("");
 
   function toggleSensor(key: SensorKey) {
     setAiSensors(prev => ({ ...prev, [key]: !prev[key] }));
@@ -118,7 +124,7 @@ export default function HomeScreen() {
       setIsSOSActive(false); setDangerLevel(0); setAlertLevel("none"); setTapCount(0);
       setDetectionTrigger(null); setAlertMessage(""); setAiAnalyzing(false); setLastTapTime(0);
       setHeartRate(72); setBodyTemp(98.6); setVoiceStress(12); setMotionPattern("NORMAL");
-      setDrillActive(false);
+      setDrillActive(false); setAlertTimestamp("");
     }, 3500);
     return () => clearTimeout(id);
   }, [drillActive, isSOSActive]);
@@ -142,7 +148,10 @@ export default function HomeScreen() {
     else if (aiSensors.motion && (motionPattern === "FALL" || motionPattern === "SEIZURE")) { trigger = motionPattern; msg = `${motionPattern} detected`; }
     if (trigger) {
       setAiAnalyzing(true); setDetectionTrigger(trigger); setAlertMessage(msg);
-      setTimeout(() => { setAiAnalyzing(false); setIsSOSActive(true); setDangerLevel(3); setAlertLevel("authorities"); }, 2000);
+      setTimeout(() => {
+        setAiAnalyzing(false); setIsSOSActive(true); setDangerLevel(3); setAlertLevel("authorities");
+        setAlertTimestamp(new Date().toLocaleTimeString()); setTapCount(9);
+      }, 2000);
     }
   }, [heartRate, bodyTemp, voiceStress, motionPattern, isSOSActive, aiSensors]);
 
@@ -150,6 +159,7 @@ export default function HomeScreen() {
     const now = Date.now();
     const next = now - lastTapTime > 3000 && tapCount === 0 ? 1 : tapCount + 1;
     setTapCount(next); setLastTapTime(now); setIsSOSActive(true); setDetectionTrigger("manual");
+    if (next === 1) setAlertTimestamp(new Date().toLocaleTimeString());
     if (next >= 9)      { setAlertLevel("authorities"); setDangerLevel(3); setAlertMessage("Emergency services and local authorities notified."); }
     else if (next >= 6) { setAlertLevel("nearby");      setDangerLevel(2); setAlertMessage(`Broadcasting to nearby users within ${nearbyRange} mile.`); }
     else if (next >= 3) { setAlertLevel("contacts");    setDangerLevel(1); setAlertMessage("Alerting 3 trusted contacts with your location."); }
@@ -160,7 +170,37 @@ export default function HomeScreen() {
     setIsSOSActive(false); setDangerLevel(0); setAlertLevel("none"); setTapCount(0);
     setDetectionTrigger(null); setAlertMessage(""); setAiAnalyzing(false); setLastTapTime(0);
     setHeartRate(72); setBodyTemp(98.6); setVoiceStress(12); setMotionPattern("NORMAL");
+    setAlertTimestamp(""); setJourneyActive(false);
   }
+
+  function handleVoiceTrigger() {
+    if (voiceListening || isSOSActive) return;
+    setVoiceListening(true);
+    setTimeout(() => { setVoiceListening(false); setVoiceStress(90); }, 3000);
+  }
+
+  function startJourney() {
+    setJourneySecsLeft(journeyMins * 60);
+    setJourneyActive(true);
+  }
+
+  useEffect(() => {
+    if (!journeyActive) return;
+    const id = setInterval(() => {
+      setJourneySecsLeft(prev => {
+        if (prev <= 1) {
+          setJourneyActive(false);
+          setIsSOSActive(true); setDangerLevel(1); setAlertLevel("contacts");
+          setTapCount(3); setDetectionTrigger("JOURNEY TIMER");
+          setAlertMessage("Journey timer expired — no check-in received. Alerting trusted contacts.");
+          setAlertTimestamp(new Date().toLocaleTimeString());
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [journeyActive]);
 
   const d = getDanger(theme)[dangerLevel];
   const analyzeSpin = useSpin(true);
@@ -170,6 +210,7 @@ export default function HomeScreen() {
       <SafeAreaView style={[s.screen, { backgroundColor: theme.bg }]} edges={["top", "bottom"]}>
 
         <NeonBackground dangerLevel={dangerLevel} />
+        <FirefliesBackground />
         {aiAnalyzing && <AIOverlay message={alertMessage} spin={analyzeSpin} />}
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
@@ -205,15 +246,27 @@ export default function HomeScreen() {
 
           <SOSButton tapCount={tapCount} dangerLevel={dangerLevel} isActive={isSOSActive} onPress={handleSOS} />
 
+          <VoiceSOSButton listening={voiceListening} isActive={isSOSActive} onPress={handleVoiceTrigger} />
+
           <View style={[s.divider, { backgroundColor: theme.borderMid }]} />
 
           {tapCount >= 3 && (
             <>
               <AlertSection tapCount={tapCount} alertLevel={alertLevel} alertMessage={alertMessage}
-                nearbyRange={nearbyRange} setNearbyRange={setNearbyRange} onMarkSafe={handleMarkSafe} />
+                nearbyRange={nearbyRange} setNearbyRange={setNearbyRange} onMarkSafe={handleMarkSafe}
+                alertTimestamp={alertTimestamp} />
               <View style={[s.divider, { backgroundColor: theme.borderMid }]} />
             </>
           )}
+
+          <JourneyPanel
+            active={journeyActive} mins={journeyMins} secsLeft={journeySecsLeft}
+            onSetMins={setJourneyMins} onStart={startJourney}
+            onCancel={() => { setJourneyActive(false); setJourneySecsLeft(0); }}
+            isSOSActive={isSOSActive}
+          />
+
+          <View style={[s.divider, { backgroundColor: theme.borderMid }]} />
 
           <GuardianPanel
             heartRate={heartRate} bodyTemp={bodyTemp} voiceStress={voiceStress}
@@ -225,7 +278,7 @@ export default function HomeScreen() {
           />
 
           <View style={[s.divider, { backgroundColor: theme.borderMid }]} />
-          <ContactsPanel />
+          <ContactsPanel isHelper={isHelper} onToggleHelper={() => setIsHelper(v => !v)} />
           <View style={[s.divider, { backgroundColor: theme.borderMid }]} />
           <AreaSafetyPanel />
 
@@ -254,6 +307,83 @@ function NeonBackground({ dangerLevel }: { dangerLevel: DangerLevel }) {
       <View style={[s.gridLine, { left: "25%", backgroundColor: th.gridLine }]} />
       <View style={[s.gridLine, { left: "50%", backgroundColor: th.gridLine }]} />
       <View style={[s.gridLine, { left: "75%", backgroundColor: th.gridLine }]} />
+    </View>
+  );
+}
+
+// ─── Fireflies ────────────────────────────────────────────────────────────────
+
+type FireflyDatum = { x: number; y: number; size: number; color: string; dur: number; dx: number; dy: number; blink: number };
+
+const FIREFLY_DATA: FireflyDatum[] = [
+  { x: 35,  y: 60,  size: 2.5, color: "#C8FF00", dur: 5000, dx: 22,  dy: -15, blink: 0    },
+  { x: 180, y: 40,  size: 3,   color: "#FFE600", dur: 6200, dx: -18, dy: 25,  blink: 600  },
+  { x: 310, y: 95,  size: 2,   color: "#39FF14", dur: 4800, dx: 15,  dy: -20, blink: 1200 },
+  { x: 75,  y: 200, size: 2.5, color: "#FFE600", dur: 5500, dx: -25, dy: 18,  blink: 300  },
+  { x: 250, y: 180, size: 3.5, color: "#C8FF00", dur: 7000, dx: 20,  dy: -22, blink: 900  },
+  { x: 355, y: 245, size: 2,   color: "#39FF14", dur: 4500, dx: -12, dy: 15,  blink: 1500 },
+  { x: 20,  y: 360, size: 3,   color: "#FFE600", dur: 6000, dx: 28,  dy: -12, blink: 400  },
+  { x: 145, y: 330, size: 2,   color: "#C8FF00", dur: 5200, dx: -16, dy: 20,  blink: 1100 },
+  { x: 320, y: 385, size: 2.5, color: "#FFE600", dur: 4900, dx: 14,  dy: -25, blink: 700  },
+  { x: 195, y: 455, size: 3,   color: "#39FF14", dur: 5800, dx: -22, dy: 16,  blink: 200  },
+  { x: 60,  y: 525, size: 2,   color: "#FFE600", dur: 6300, dx: 18,  dy: -18, blink: 1300 },
+  { x: 280, y: 510, size: 3,   color: "#C8FF00", dur: 5100, dx: -14, dy: 22,  blink: 500  },
+  { x: 370, y: 565, size: 2.5, color: "#FFE600", dur: 4600, dx: 20,  dy: -15, blink: 800  },
+  { x: 125, y: 625, size: 2,   color: "#39FF14", dur: 5700, dx: -24, dy: 14,  blink: 1600 },
+  { x: 48,  y: 705, size: 3,   color: "#C8FF00", dur: 6100, dx: 16,  dy: -20, blink: 350  },
+  { x: 220, y: 685, size: 2,   color: "#FFE600", dur: 4700, dx: -18, dy: 24,  blink: 950  },
+  { x: 340, y: 735, size: 2.5, color: "#39FF14", dur: 5300, dx: 22,  dy: -16, blink: 1400 },
+  { x: 100, y: 805, size: 2,   color: "#FFE600", dur: 5900, dx: -15, dy: 12,  blink: 650  },
+  { x: 260, y: 825, size: 3,   color: "#C8FF00", dur: 6400, dx: 20,  dy: -18, blink: 1100 },
+  { x: 385, y: 765, size: 2,   color: "#FFE600", dur: 4800, dx: -12, dy: 14,  blink: 1700 },
+];
+
+function Firefly({ x, y, size, color, dur, dx, dy, blink }: FireflyDatum) {
+  const tx   = useRef(new Animated.Value(0)).current;
+  const ty   = useRef(new Animated.Value(0)).current;
+  const op   = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const floatX = Animated.loop(Animated.sequence([
+      Animated.timing(tx, { toValue: dx,         duration: dur,       useNativeDriver: true }),
+      Animated.timing(tx, { toValue: -dx * 0.6,  duration: dur * 0.8, useNativeDriver: true }),
+      Animated.timing(tx, { toValue: dx * 0.3,   duration: dur * 0.7, useNativeDriver: true }),
+      Animated.timing(tx, { toValue: 0,           duration: dur * 0.5, useNativeDriver: true }),
+    ]));
+    const floatY = Animated.loop(Animated.sequence([
+      Animated.timing(ty, { toValue: dy,         duration: dur * 1.1, useNativeDriver: true }),
+      Animated.timing(ty, { toValue: -dy * 0.5,  duration: dur * 0.9, useNativeDriver: true }),
+      Animated.timing(ty, { toValue: dy * 0.35,  duration: dur * 0.7, useNativeDriver: true }),
+      Animated.timing(ty, { toValue: 0,           duration: dur * 0.4, useNativeDriver: true }),
+    ]));
+    const glow = Animated.loop(Animated.sequence([
+      Animated.delay(blink),
+      Animated.timing(op, { toValue: 0.9, duration: 250, useNativeDriver: true }),
+      Animated.timing(op, { toValue: 0.4, duration: 350, useNativeDriver: true }),
+      Animated.timing(op, { toValue: 0.85, duration: 200, useNativeDriver: true }),
+      Animated.timing(op, { toValue: 0,   duration: 600, useNativeDriver: true }),
+      Animated.delay(1200 + (blink % 900)),
+    ]));
+    floatX.start(); floatY.start(); glow.start();
+    return () => { floatX.stop(); floatY.stop(); glow.stop(); };
+  }, []);
+
+  return (
+    <Animated.View pointerEvents="none" style={{
+      position: "absolute", left: x, top: y,
+      width: size, height: size, borderRadius: size / 2,
+      backgroundColor: color,
+      shadowColor: color, shadowOpacity: 1, shadowRadius: size * 5,
+      shadowOffset: { width: 0, height: 0 },
+      opacity: op, transform: [{ translateX: tx }, { translateY: ty }],
+    }} />
+  );
+}
+
+function FirefliesBackground() {
+  return (
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+      {FIREFLY_DATA.map((f, i) => <Firefly key={i} {...f} />)}
     </View>
   );
 }
@@ -341,6 +471,117 @@ function SOSButton({ tapCount, dangerLevel, isActive, onPress }: {
           <Text style={[s.sosSub, { color: th.textDim }]}>{sub}</Text>
         </Animated.View>
       </Pressable>
+    </View>
+  );
+}
+
+// ─── Voice SOS Button ────────────────────────────────────────────────────────
+
+function VoiceSOSButton({ listening, isActive, onPress }: { listening: boolean; isActive: boolean; onPress: () => void }) {
+  const th = useTheme();
+  const pulse = usePulse(listening, 400);
+  const color = isActive ? th.textDim : listening ? th.pink : th.blue;
+  return (
+    <View style={s.voiceWrap}>
+      <Pressable onPress={onPress} disabled={isActive}
+        style={[s.voiceBtn, { borderColor: `${color}60`, backgroundColor: `${color}10`, opacity: isActive ? 0.35 : 1 }]}>
+        <Animated.Text style={[s.voiceIcon, { color, shadowColor: color, opacity: listening ? pulse : 1 }]}>
+          {listening ? "◉" : "◎"}
+        </Animated.Text>
+        <View style={{ flex: 1 }}>
+          <Text style={[s.voiceBtnText, { color }]}>{listening ? "LISTENING..." : "VOICE SOS"}</Text>
+          <Text style={[s.voiceBtnSub, { color: th.textDim }]}>
+            {listening ? 'Say "HELP" to trigger emergency alert' : "Tap to activate voice trigger"}
+          </Text>
+        </View>
+        {listening && (
+          <View style={s.voiceBars}>
+            {[0.4, 1, 0.6, 0.9, 0.3, 0.7, 0.5].map((h, i) => (
+              <Animated.View key={i} style={[s.voiceBar, { backgroundColor: th.pink, height: 20 * h, opacity: pulse }]} />
+            ))}
+          </View>
+        )}
+      </Pressable>
+    </View>
+  );
+}
+
+// ─── Journey Panel ────────────────────────────────────────────────────────────
+
+function JourneyPanel({ active, mins, secsLeft, onSetMins, onStart, onCancel, isSOSActive }: {
+  active: boolean; mins: number; secsLeft: number;
+  onSetMins: (m: number) => void; onStart: () => void; onCancel: () => void; isSOSActive: boolean;
+}) {
+  const th = useTheme();
+  const progressPulse = usePulse(active, 1600);
+  const DURATIONS = [5, 10, 15, 20];
+  const minsLeft = Math.floor(secsLeft / 60);
+  const secsDisplay = secsLeft % 60;
+  const timerStr = `${minsLeft}:${String(secsDisplay).padStart(2, "0")}`;
+  const nearExpiry = secsLeft <= 60 && secsLeft > 0;
+
+  return (
+    <View style={s.section}>
+      <View style={s.sectionHeader}>
+        <View style={s.sectionTitleRow}>
+          <Text style={[s.aiGlyphSm, { color: active ? th.green : th.textDim }]}>⊕</Text>
+          <View>
+            <Text style={[s.sectionTitle, { color: th.textMuted }]}>WALK HOME MODE</Text>
+            <Text style={[s.guardianSub, { color: th.textDim }]}>
+              {active ? "Journey in progress — check in when safe" : "Set a timer for your journey"}
+            </Text>
+          </View>
+        </View>
+        {active && (
+          <Animated.View style={[s.riskBadge,
+            { borderColor: nearExpiry ? th.orange : th.green, backgroundColor: nearExpiry ? th.orangeBg : th.greenBg, opacity: progressPulse }]}>
+            <Text style={[s.riskBadgeText, { color: nearExpiry ? th.orange : th.green }]}>{nearExpiry ? "EXPIRING" : "ACTIVE"}</Text>
+          </Animated.View>
+        )}
+      </View>
+
+      {active ? (
+        <View style={s.journeyActive}>
+          <View style={s.journeyTimerWrap}>
+            <Text style={[s.journeyTimerLabel, { color: th.textDim }]}>TIME REMAINING</Text>
+            <Text style={[s.journeyTimer, { color: nearExpiry ? th.orange : th.green, shadowColor: nearExpiry ? th.orangeGlow : th.greenGlow }]}>
+              {timerStr}
+            </Text>
+            <Text style={[s.journeyTimerSub, { color: th.textDim }]}>
+              {nearExpiry ? "⚠ Almost expired — tap below if you arrived safely" : "Your contacts are alerted if the timer expires"}
+            </Text>
+          </View>
+          <Pressable onPress={onCancel} style={[s.safeBtn, { borderColor: th.green, shadowColor: th.greenGlow }]}>
+            <Text style={[s.safeBtnText, { color: th.green }]}>I ARRIVED SAFELY</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <View style={{ gap: 14 }}>
+          <View style={{ gap: 8 }}>
+            <Text style={[s.rangeLabel, { color: th.textDim }]}>JOURNEY DURATION</Text>
+            <View style={s.rangeRow}>
+              {DURATIONS.map((m) => (
+                <Pressable key={m} onPress={() => onSetMins(m)}
+                  style={[s.rangeBtn, { borderColor: mins === m ? th.green : th.borderMid },
+                    mins === m && { shadowColor: th.greenGlow, shadowOpacity: 0.6, shadowRadius: 8 }]}>
+                  <Text style={[s.rangeBtnText, { color: mins === m ? th.green : th.textDim }]}>{m}m</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+          <Pressable onPress={onStart} disabled={isSOSActive}
+            style={[s.journeyStartBtn, { borderColor: isSOSActive ? th.borderMid : th.green,
+              backgroundColor: isSOSActive ? "transparent" : th.greenBg,
+              shadowColor: th.greenGlow, opacity: isSOSActive ? 0.4 : 1 }]}>
+            <Text style={[s.journeyStartText, { color: isSOSActive ? th.textDim : th.green }]}>
+              START {mins}-MIN JOURNEY TIMER
+            </Text>
+          </Pressable>
+          <Text style={[s.journeyNote, { color: th.textDim }]}>
+            If you don't check in within {mins} minutes, your trusted contacts will be automatically alerted.
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -529,9 +770,10 @@ function GuardianPanel({ heartRate, bodyTemp, voiceStress, motionPattern, isActi
 
 // ─── Alert section ────────────────────────────────────────────────────────────
 
-function AlertSection({ tapCount, alertLevel, alertMessage, nearbyRange, setNearbyRange, onMarkSafe }: {
+function AlertSection({ tapCount, alertLevel, alertMessage, nearbyRange, setNearbyRange, onMarkSafe, alertTimestamp }: {
   tapCount: number; alertLevel: string; alertMessage: string;
   nearbyRange: number; setNearbyRange: (v: number) => void; onMarkSafe: () => void;
+  alertTimestamp: string;
 }) {
   const th = useTheme();
   const STAGES = [
@@ -562,6 +804,37 @@ function AlertSection({ tapCount, alertLevel, alertMessage, nearbyRange, setNear
         </Text>
         <Text style={[s.alertMsgBody, { color: th.textMuted }]}>{alertMessage}</Text>
       </View>
+
+      <View style={[s.locationBlock, { borderColor: th.borderMid, backgroundColor: th.sensorCardBg }]}>
+        <View style={s.locationRow}>
+          <Text style={[s.locationIcon, { color: th.blue, shadowColor: th.blueGlow }]}>◎</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={[s.locationLabel, { color: th.textDim }]}>SHARING LIVE LOCATION</Text>
+            <Text style={[s.locationCoords, { color: th.text }]}>40.7831° N, 73.9712° W</Text>
+            <Text style={[s.locationArea, { color: th.textMuted }]}>Upper West Side, Manhattan</Text>
+          </View>
+          {alertTimestamp ? <Text style={[s.locationTime, { color: th.textDim }]}>Sent {alertTimestamp}</Text> : null}
+        </View>
+      </View>
+
+      <View style={[s.notifWrap, { borderColor: th.borderMid }]}>
+        <Text style={[s.notifTitle, { color: th.textDim }]}>NOTIFICATION STATUS</Text>
+        {[
+          { name: "Mom",              status: tapCount >= 3 ? "NOTIFIED"     : "PENDING",    color: tapCount >= 3 ? th.green : th.textDim },
+          { name: "S. Chen",          status: tapCount >= 3 ? "NOTIFIED"     : "PENDING",    color: tapCount >= 3 ? th.green : th.textDim },
+          { name: "Dr. Wilson",       status: tapCount >= 6 ? "NOTIFIED"     : "STANDBY",    color: tapCount >= 6 ? th.green : th.yellow  },
+          { name: "Nearby Users (7)", status: tapCount >= 6 ? "BROADCASTING" : "STANDBY",    color: tapCount >= 6 ? th.blue  : th.textDim },
+          { name: "Emergency Svcs",   status: tapCount >= 9 ? "DISPATCHED"   : "STANDBY",    color: tapCount >= 9 ? th.pink  : th.textDim },
+        ].map((n, i) => (
+          <View key={n.name} style={[s.notifRow,
+            i < 4 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: th.borderMid }]}>
+            <View style={[s.notifDot, { backgroundColor: n.color }]} />
+            <Text style={[s.notifName, { color: th.text }]}>{n.name}</Text>
+            <Text style={[s.notifStatus, { color: n.color }]}>{n.status}</Text>
+          </View>
+        ))}
+      </View>
+
       {alertLevel === "nearby" && (
         <View style={s.rangeWrap}>
           <Text style={[s.rangeLabel, { color: th.textDim }]}>BROADCAST RANGE</Text>
@@ -585,7 +858,7 @@ function AlertSection({ tapCount, alertLevel, alertMessage, nearbyRange, setNear
 
 // ─── Contacts ─────────────────────────────────────────────────────────────────
 
-function ContactsPanel() {
+function ContactsPanel({ isHelper, onToggleHelper }: { isHelper: boolean; onToggleHelper: () => void }) {
   const th = useTheme();
   const CONTACTS = [
     { name: "Mom",        role: "PRIMARY", phone: "(917) 555-0123", color: th.pink,  online: true  },
@@ -601,7 +874,7 @@ function ContactsPanel() {
         <Text style={[s.sectionCount, { color: th.textDim }]}>{CONTACTS.length}</Text>
       </View>
       {CONTACTS.map((ct, i) => (
-        <View key={ct.name} style={[s.contactRow, i < CONTACTS.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: th.borderMid }]}>
+        <View key={ct.name} style={[s.contactRow, { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: th.borderMid }]}>
           <View style={[s.contactAvatar, { borderColor: ct.color }]}>
             <Text style={[s.contactInitial, { color: ct.color }]}>{ct.name[0]}</Text>
             {ct.online && (
@@ -615,6 +888,18 @@ function ContactsPanel() {
           <Text style={[s.contactPhone, { color: th.textDim }]}>{ct.phone}</Text>
         </View>
       ))}
+      <View style={[s.helperToggleWrap, { borderColor: isHelper ? th.blue : th.borderMid, backgroundColor: isHelper ? th.blueBg : th.sensorCardBg }]}>
+        <View style={{ flex: 1 }}>
+          <Text style={[s.helperToggleTitle, { color: isHelper ? th.blue : th.textMuted }]}>JOIN AS NEARBY HELPER</Text>
+          <Text style={[s.helperToggleSub, { color: th.textDim }]}>
+            {isHelper ? "You're visible to others who need help nearby" : "Opt in to receive emergency alerts from nearby users"}
+          </Text>
+        </View>
+        <Pressable onPress={onToggleHelper}
+          style={[s.togglePill, { borderColor: isHelper ? th.blue : th.borderMid, backgroundColor: isHelper ? `${th.blue}18` : "transparent" }]}>
+          <Text style={[s.toggleText, { color: isHelper ? th.blue : th.textDim }]}>{isHelper ? "ON" : "OFF"}</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -897,4 +1182,43 @@ const s = StyleSheet.create({
   crimeMeta:      { fontSize: f.xs, letterSpacing: 0.5, marginTop: 2 },
   crimePill:      { borderWidth: 1, borderRadius: 4, paddingHorizontal: 8, paddingVertical: 3 },
   crimePillText:  { fontSize: 9, fontWeight: "800", letterSpacing: 1 },
+
+  // Voice SOS
+  voiceWrap:    { marginTop: 20 },
+  voiceBtn:     { flexDirection: "row", alignItems: "center", gap: 14, borderWidth: 1, borderRadius: 8, paddingHorizontal: 20, paddingVertical: 14 },
+  voiceIcon:    { fontSize: 22, shadowOpacity: 1, shadowRadius: 8, shadowOffset: { width: 0, height: 0 } },
+  voiceBtnText: { fontSize: f.sm, fontWeight: "700", letterSpacing: 2, marginBottom: 2 },
+  voiceBtnSub:  { fontSize: f.xs, letterSpacing: 0.5 },
+  voiceBars:    { flexDirection: "row", alignItems: "center", gap: 2 },
+  voiceBar:     { width: 3, borderRadius: 2 },
+
+  // Walk Home Journey
+  journeyActive:    { gap: 16 },
+  journeyTimerWrap: { alignItems: "center", gap: 8, paddingVertical: 16 },
+  journeyTimerLabel:{ fontSize: f.xs, letterSpacing: 3 },
+  journeyTimer:     { fontSize: 56, fontWeight: "900", letterSpacing: 4, shadowOpacity: 1, shadowRadius: 20, shadowOffset: { width: 0, height: 0 } },
+  journeyTimerSub:  { fontSize: f.xs, letterSpacing: 0.8, textAlign: "center", paddingHorizontal: 20, lineHeight: 18 },
+  journeyStartBtn:  { borderWidth: 1, borderRadius: 4, paddingVertical: 16, alignItems: "center", shadowOpacity: 0.4, shadowRadius: 12, shadowOffset: { width: 0, height: 0 } },
+  journeyStartText: { fontSize: f.sm, fontWeight: "800", letterSpacing: 2 },
+  journeyNote:      { fontSize: f.xs, letterSpacing: 0.3, lineHeight: 18, textAlign: "center" },
+
+  // Alert location + notification status
+  locationBlock:  { borderWidth: 1, borderRadius: 8, padding: 14 },
+  locationRow:    { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+  locationIcon:   { fontSize: 16, marginTop: 2, shadowOpacity: 1, shadowRadius: 6 },
+  locationLabel:  { fontSize: 9, letterSpacing: 2, fontWeight: "700", marginBottom: 3 },
+  locationCoords: { fontSize: f.sm, fontWeight: "700", letterSpacing: 0.5 },
+  locationArea:   { fontSize: f.xs, letterSpacing: 0.3, marginTop: 2 },
+  locationTime:   { fontSize: 9, letterSpacing: 0.5, alignSelf: "flex-start" },
+  notifWrap:      { borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, overflow: "hidden" },
+  notifTitle:     { fontSize: 9, letterSpacing: 3, fontWeight: "700", paddingHorizontal: 14, paddingTop: 12, paddingBottom: 8 },
+  notifRow:       { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 14, paddingVertical: 10 },
+  notifDot:       { width: 6, height: 6, borderRadius: 3 },
+  notifName:      { fontSize: f.xs, letterSpacing: 0.3, flex: 1 },
+  notifStatus:    { fontSize: 9, fontWeight: "800", letterSpacing: 1.5 },
+
+  // Contacts helper toggle
+  helperToggleWrap:  { flexDirection: "row", alignItems: "center", gap: 14, borderWidth: 1, borderRadius: 8, padding: 14, marginTop: 4 },
+  helperToggleTitle: { fontSize: f.xs, fontWeight: "800", letterSpacing: 1.5, marginBottom: 4 },
+  helperToggleSub:   { fontSize: f.xs, letterSpacing: 0.3, lineHeight: 16 },
 });
