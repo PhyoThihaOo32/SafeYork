@@ -195,14 +195,58 @@ export default function Project() {
               <p className="text-[oklch(0.6_0.02_260)] leading-relaxed mb-8">
                 SafeYork solves this by creating a <span className="text-[oklch(0.85_0.18_192)] font-semibold">faster bridge</span> between a person in crisis and the people who can help.
               </p>
-              {/* Signal wave visual */}
-              <div className="relative rounded-xl overflow-hidden border border-[oklch(0.85_0.18_192/10%)] h-32">
-                <img src={SIGNAL_WAVE} alt="Signal wave" className="w-full h-full object-cover opacity-40" />
+              {/* Animated Signal Active visual */}
+              <div className="relative rounded-xl overflow-hidden border border-[oklch(0.85_0.18_192/15%)] h-40 bg-[oklch(0.06_0.02_260)]">
+                <img src={SIGNAL_WAVE} alt="Signal wave" className="w-full h-full object-cover opacity-30" />
                 <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.06_0.02_260)] via-transparent to-[oklch(0.06_0.02_260)]" />
+                {/* Animated expanding pulse rings */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex items-center gap-3">
-                    <Radio className="w-5 h-5 text-[oklch(0.85_0.18_192)] animate-pulse" />
-                    <span className="text-sm font-[family-name:var(--font-mono)] text-[oklch(0.85_0.18_192)]">SIGNAL ACTIVE</span>
+                  {[0, 1, 2, 3].map((ring) => (
+                    <motion.div
+                      key={ring}
+                      className="absolute rounded-full border border-[oklch(0.85_0.18_192/30%)]"
+                      initial={{ width: 20, height: 20, opacity: 0.8 }}
+                      animate={{
+                        width: [20, 200 + ring * 60],
+                        height: [20, 200 + ring * 60],
+                        opacity: [0.6, 0],
+                      }}
+                      transition={{
+                        duration: 3,
+                        delay: ring * 0.7,
+                        repeat: Infinity,
+                        ease: "easeOut",
+                      }}
+                    />
+                  ))}
+                  {/* Rotating radar sweep */}
+                  <motion.div
+                    className="absolute w-32 h-32"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                  >
+                    <div
+                      className="w-full h-full"
+                      style={{
+                        background: "conic-gradient(from 0deg, transparent 0deg, oklch(0.85 0.18 192 / 15%) 30deg, transparent 60deg)",
+                        borderRadius: "50%",
+                      }}
+                    />
+                  </motion.div>
+                  {/* Center dot + text */}
+                  <div className="relative flex items-center gap-3 z-10">
+                    <motion.div
+                      className="w-3 h-3 rounded-full bg-[oklch(0.85_0.18_192)]"
+                      animate={{ scale: [1, 1.4, 1], boxShadow: ["0 0 8px oklch(0.85 0.18 192 / 40%)", "0 0 24px oklch(0.85 0.18 192 / 70%)", "0 0 8px oklch(0.85 0.18 192 / 40%)"] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                    <motion.span
+                      className="text-sm font-[family-name:var(--font-mono)] text-[oklch(0.85_0.18_192)] tracking-wider"
+                      animate={{ opacity: [0.6, 1, 0.6] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      SIGNAL ACTIVE
+                    </motion.span>
                   </div>
                 </div>
               </div>
