@@ -26,6 +26,7 @@ const NYC_SKYLINE =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663596274880/dd29vAQoX4zXTUwpnz2neA/safeyork_hero_bg-X7eoEzeqPv6bQWVGFwtmQY.webp";
 const CONSTELLATION_GIF = "/manus-storage/constellation_61e334c3.gif";
 const NEON_NETWORK_GIF = "/manus-storage/neon_network_a15f76e5.gif";
+const PAGODA_IMG = "/manus-storage/pagoda_c93863eb.jpeg";
 
 /* ── DATA ── */
 const principles = [
@@ -250,9 +251,19 @@ export default function About() {
       <Divider />
 
       {/* ══════════════════════════════════════════════════
-          TEAM — YangonDevs with avatar initials
+          TEAM — YangonDevs with avatar initials + Shwedagon Pagoda
          ══════════════════════════════════════════════════ */}
       <section className="relative py-32 overflow-hidden">
+        {/* Soft pagoda background — warm golden glow from Myanmar */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${PAGODA_IMG})`, opacity: 0.06 }}
+        />
+        {/* Dark overlay to keep text readable */}
+        <div className="absolute inset-0 bg-[oklch(0.08_0.02_260/85%)]" />
+        {/* Warm golden radial glow from center bottom */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center_bottom,oklch(0.65_0.15_80/6%)_0%,transparent_55%)]" />
+        {/* Neon network overlay */}
         <div
           className="absolute inset-0 bg-cover bg-center mix-blend-screen"
           style={{ backgroundImage: `url(${NEON_NETWORK_GIF})`, opacity: 0.04 }}
@@ -266,7 +277,7 @@ export default function About() {
               YangonDevs
             </h2>
             <p className="text-sm text-[oklch(0.55_0.02_260)] max-w-lg mb-16">
-              A team of developers from Myanmar, building technology for public safety.
+              A team of developers from Myanmar, building technology for public safety — inspired by the spirit of Yangon.
             </p>
           </FadeIn>
 
