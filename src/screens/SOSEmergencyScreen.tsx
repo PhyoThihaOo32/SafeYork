@@ -32,54 +32,48 @@ export default function SOSEmergencyScreen() {
   }
 
   return (
-    <Screen title="SOS Emergency" subtitle="Triple-tap with 3-second cancel window.">
+    <Screen title="SOS Emergency" subtitle="Triple-tap activation plus a 3-second cancel window to reduce accidental alerts.">
       <DangerBadge level={dangerLevel} />
-
-      {/* SOS Circle */}
-      <View style={{ alignItems: "center", paddingVertical: 20, gap: 14 }}>
+      <Card style={{ alignItems: "center", gap: 18, borderColor: countdown !== null ? colors.emergency : colors.border }}>
         <Pressable
           onPress={handleTap}
           style={{
-            width: 180,
-            height: 180,
-            borderRadius: 90,
-            backgroundColor: countdown !== null ? "#991b1b" : colors.emergency,
+            width: 250,
+            height: 250,
+            borderRadius: 125,
+            backgroundColor: colors.emergency,
             alignItems: "center",
             justifyContent: "center",
-            borderWidth: 2,
-            borderColor: countdown !== null ? colors.emergency : "#ef444440",
+            borderWidth: 14,
+            borderColor: "#991b1b",
           }}
         >
-          <Text style={{ color: colors.white, fontSize: 44, fontWeight: "800", letterSpacing: 2 }}>SOS</Text>
-          <Text style={{ color: "#ffffffcc", fontSize: 12, fontWeight: "700" }}>Tap {Math.min(tapCount + 1, 3)} of 3</Text>
+          <Text style={{ color: colors.white, fontSize: 58, fontWeight: "900" }}>SOS</Text>
+          <Text style={{ color: colors.white, fontWeight: "900" }}>Tap {Math.min(tapCount + 1, 3)} of 3</Text>
         </Pressable>
-
         {countdown !== null ? (
-          <View style={{ alignItems: "center", gap: 8 }}>
-            <Text style={{ color: colors.emergency, fontSize: 48, fontWeight: "800" }}>{countdown}</Text>
-            <ActionButton label="Cancel Alert" tone="dark" onPress={() => {
+          <>
+            <Text style={{ color: colors.emergency, fontSize: 42, fontWeight: "900" }}>{countdown}</Text>
+            <ActionButton label="Cancel Simulated Alert" tone="dark" onPress={() => {
               setCountdown(null);
               markSafe("SOS countdown canceled before escalation.");
             }} />
-          </View>
+          </>
         ) : (
-          <Text style={{ color: colors.muted, fontSize: 12, textAlign: "center", maxWidth: 280 }}>
-            Triple tap to activate. 3-second cancel window before simulated escalation.
-          </Text>
+          <BodyText>Triple tap the button. After the third tap, SafeYork starts a cancel countdown before simulated escalation.</BodyText>
         )}
-      </View>
-
+      </Card>
       {notifications.length ? (
         <Card>
           <SectionTitle>Alert Confirmation</SectionTitle>
-          <KeyValue label="Status" value="Alert sent (Demo)" />
-          <KeyValue label="Location" value="Active simulation" />
-          <KeyValue label="Danger" value={`Level ${dangerLevel}`} />
+          <KeyValue label="Status" value="Alert sent in Demo Mode" />
+          <KeyValue label="Location sharing" value="Active simulation" />
+          <KeyValue label="Danger level" value={`Level ${dangerLevel}`} />
           <BodyText>{emergencySummary.headline}</BodyText>
           {notifications.map((card) => (
             <KeyValue key={card.id} label={card.scope} value={card.recipient} />
           ))}
-          <ActionButton label="View History" tone="blue" onPress={() => router.push("/history")} />
+          <ActionButton label="Open History Timeline" tone="blue" onPress={() => router.push("/history")} />
         </Card>
       ) : null}
     </Screen>

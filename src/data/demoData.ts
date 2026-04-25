@@ -1,6 +1,6 @@
 import { Contact, SafetyMode, LocationInfo, SafetyEvent } from "../models/types";
 
-export const teamMembers = ["Phyo T. Oo", "Zin Min Wai", "Kyawt Kyawt Htun", "Thet Oo Maung"];
+export const teamMembers = ["Kyawt Kyawt Htun", "Zin Min Wai", "Phyo Thiha Oo", "Member 4"];
 
 export const safetyModes: SafetyMode[] = [
   { id: "walking", name: "Walking Home", minutes: 15, description: "For walking alone, campus routes, or late-night commutes." },
