@@ -9,52 +9,62 @@ export default function HomeDashboardScreen() {
   const { status, dangerLevel, selectedMode, location, biometric, triggerAlert, logEvent } = useSafeYork();
 
   return (
-    <Screen title="SafeYork" subtitle="Large controls, minimal steps, privacy-first simulated alerts.">
+    <Screen title="Dashboard" subtitle="Privacy-first simulated emergency alerts.">
       <DangerBadge level={dangerLevel} />
-      <Card style={{ alignItems: "center", gap: 18 }}>
-        <Text style={{ color: colors.text, fontSize: 18, fontWeight: "900" }}>Current Status: {status}</Text>
+
+      {/* SOS Button — clean, centered */}
+      <View style={{ alignItems: "center", paddingVertical: 16, gap: 12 }}>
+        <Text style={{ color: colors.muted, fontSize: 10, fontWeight: "700", letterSpacing: 2, textTransform: "uppercase" }}>
+          STATUS: {status}
+        </Text>
         <Pressable
           onPress={() => triggerAlert(3, "Triple-tap SOS from Home Dashboard", "emergency help")}
           style={{
-            width: 210,
-            height: 210,
-            borderRadius: 105,
+            width: 160,
+            height: 160,
+            borderRadius: 80,
             backgroundColor: colors.emergency,
             alignItems: "center",
             justifyContent: "center",
-            borderWidth: 12,
-            borderColor: "#7f1d1d",
+            borderWidth: 2,
+            borderColor: "#ef444460",
           }}
         >
-          <Text style={{ color: colors.white, fontSize: 52, fontWeight: "900" }}>SOS</Text>
-          <Text style={{ color: colors.white, fontWeight: "900" }}>TRIPLE TAP DEMO</Text>
+          <Text style={{ color: colors.white, fontSize: 38, fontWeight: "800", letterSpacing: 2 }}>SOS</Text>
         </Pressable>
-        <BodyText>Tap opens an immediate Level 3 simulated alert for the demo. The dedicated SOS screen shows the full triple-tap countdown flow.</BodyText>
-      </Card>
+        <Text style={{ color: colors.muted, fontSize: 11, textAlign: "center" }}>
+          Tap for immediate Level 3 simulated alert
+        </Text>
+      </View>
+
+      {/* Live Snapshot */}
       <Card>
         <SectionTitle>Live Safety Snapshot</SectionTitle>
         <KeyValue label="Mode" value={selectedMode.name} />
-        <KeyValue label="Location" value={`${location.name} (${location.source})`} />
-        <KeyValue label="Heart rate" value={`${biometric.heartRate} BPM`} />
+        <KeyValue label="Location" value={location.name} />
+        <KeyValue label="Heart Rate" value={`${biometric.heartRate} BPM`} />
         <KeyValue label="Motion" value={biometric.motionStatus} />
       </Card>
-      <View style={{ gap: 10 }}>
-        <ActionButton label="Open Full SOS Flow" tone="red" onPress={() => router.push("/sos")} />
-        <ActionButton label="I Feel Unsafe - Start Silent Monitoring" tone="orange" onPress={() => {
-          logEvent("I Feel Unsafe mode", 2, "Silent monitoring started and user was prompted to start a timer.");
+
+      {/* Quick Actions — reduced to 2 */}
+      <View style={{ gap: 8 }}>
+        <ActionButton label="Full SOS Flow" tone="red" onPress={() => router.push("/sos")} />
+        <ActionButton label="I Feel Unsafe" tone="orange" onPress={() => {
+          logEvent("I Feel Unsafe mode", 2, "Silent monitoring started.");
           router.push("/safe-mode");
         }} />
-        <ActionButton label="Fake Call Demo" tone="dark" onPress={() => router.push("/settings")} />
       </View>
-      <ScreenLink href="/safe-mode" label="Get Home Safe Timer" detail="Walking Home, Ride Safety, Home Alone, Medical Emergency, or custom timer." />
-      <ScreenLink href="/guardian" label="Guardian AI" detail="Analyze voice, text, biometric, coercion, and triage signals." />
-      <ScreenLink href="/contacts" label="Trusted Contacts" detail="Add family, friends, guardians, campus security, or caregivers." />
-      <ScreenLink href="/profile" label="Emergency Profile" detail="Privacy-safe medical notes and trusted contact information." />
-      <ScreenLink href="/helpers" label="Nearby Helper Opt-In" detail="Consent-based helper network with limited shared information." />
-      <ScreenLink href="/location" label="Location and Safe Area" detail="GPS if available, simulated fallback, and map-style safety markers." />
-      <ScreenLink href="/history" label="Safety History" detail="Accountability timeline for timers, alerts, AI decisions, and helper responses." />
-      <ScreenLink href="/settings" label="Settings and Everyday Safety" detail="Widget demo, fake call, night prompt, checklist, and privacy controls." />
-      <ScreenLink href="/future" label="Future Vision" detail="Roadmap for wearables, campus partnerships, and public infrastructure integration." />
+
+      {/* Navigation — compact list */}
+      <ScreenLink href="/safe-mode" label="Get Home Safe Timer" detail="Walking, Ride, Home Alone, Medical, or custom timer." />
+      <ScreenLink href="/guardian" label="Guardian AI" detail="Voice, text, biometric, and coercion analysis." />
+      <ScreenLink href="/contacts" label="Trusted Contacts" detail="Family, friends, campus security." />
+      <ScreenLink href="/profile" label="Emergency Profile" detail="Privacy-safe medical notes." />
+      <ScreenLink href="/helpers" label="Nearby Helpers" detail="Consent-based helper network." />
+      <ScreenLink href="/location" label="Location" detail="GPS and safe area markers." />
+      <ScreenLink href="/history" label="History" detail="Timeline of alerts and AI decisions." />
+      <ScreenLink href="/settings" label="Settings" detail="Widget, fake call, privacy controls." />
+      <ScreenLink href="/future" label="Future Vision" detail="Wearables, campus, and public infrastructure." />
     </Screen>
   );
 }
