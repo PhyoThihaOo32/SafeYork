@@ -184,3 +184,65 @@
   background: oklch(0.85 0.18 192 / 30%);
   color: white;
 }
+
+
+/* Soft neon circuit background. Works in dark and light themes. */
+.neon-circuit-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 10%, oklch(0.85 0.18 192 / 10%), transparent 24rem),
+    radial-gradient(circle at 88% 70%, oklch(0.65 0.25 10 / 7%), transparent 28rem);
+}
+
+.neon-circuit-bg::before {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  opacity: 0.22;
+  background-image:
+    linear-gradient(90deg, transparent 0 6rem, oklch(0.85 0.18 192 / 42%) 6rem 6.06rem, transparent 6.06rem 12rem),
+    linear-gradient(0deg, transparent 0 7rem, oklch(0.85 0.18 192 / 32%) 7rem 7.06rem, transparent 7.06rem 14rem),
+    radial-gradient(circle, oklch(0.85 0.18 192 / 75%) 0 0.12rem, transparent 0.16rem);
+  background-size: 18rem 14rem, 20rem 18rem, 9rem 9rem;
+  filter: drop-shadow(0 0 10px oklch(0.85 0.18 192 / 35%));
+  mask-image: radial-gradient(ellipse at center, black 0 55%, transparent 82%);
+}
+
+.neon-circuit-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent 8%, oklch(0.85 0.18 192 / 22%) 8.05%, transparent 8.1% 46%, oklch(0.85 0.18 192 / 16%) 46.05%, transparent 46.1%),
+    linear-gradient(0deg, transparent 18%, oklch(0.85 0.18 192 / 18%) 18.05%, transparent 18.1% 72%, oklch(0.65 0.25 10 / 14%) 72.05%, transparent 72.1%);
+  opacity: 0.42;
+  filter: blur(0.2px);
+}
+
+html:not(.dark) .neon-circuit-bg {
+  background:
+    radial-gradient(circle at 10% 8%, oklch(0.72 0.16 192 / 16%), transparent 23rem),
+    radial-gradient(circle at 92% 68%, oklch(0.65 0.25 10 / 10%), transparent 28rem);
+}
+
+html:not(.dark) .neon-circuit-bg::before {
+  opacity: 0.16;
+  filter: drop-shadow(0 0 8px oklch(0.72 0.16 192 / 24%));
+}
+
+html:not(.dark) .neon-circuit-bg::after {
+  opacity: 0.26;
+}
+
+#root > * {
+  position: relative;
+  z-index: 1;
+}
+
+.min-h-screen.bg-background {
+  background-color: transparent !important;
+}

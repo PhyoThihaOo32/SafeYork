@@ -6,15 +6,35 @@ import { DangerLevel } from "../models/types";
 
 export function Screen({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.screenContent}>
-      <View style={styles.header}>
-        <Text style={styles.demoPill}>DEMO MODE - NO REAL EMERGENCY CONTACT</Text>
-        <Text style={styles.title}>{title}</Text>
-        {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
-      </View>
-      {children}
-      <BottomNav />
-    </ScrollView>
+    <View style={styles.screen}>
+      <CircuitBackground />
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.screenContent}>
+        <View style={styles.header}>
+          <Text style={styles.demoPill}>DEMO MODE - NO REAL EMERGENCY CONTACT</Text>
+          <Text style={styles.title}>{title}</Text>
+          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+        </View>
+        {children}
+        <BottomNav />
+      </ScrollView>
+    </View>
+  );
+}
+
+function CircuitBackground() {
+  return (
+    <View pointerEvents="none" style={styles.circuitLayer}>
+      <View style={[styles.circuitGlow, styles.circuitGlowTop]} />
+      <View style={[styles.circuitGlow, styles.circuitGlowBottom]} />
+      <View style={[styles.circuitLine, styles.circuitLineOne]} />
+      <View style={[styles.circuitLine, styles.circuitLineTwo]} />
+      <View style={[styles.circuitLine, styles.circuitLineThree]} />
+      <View style={[styles.circuitStem, styles.circuitStemOne]} />
+      <View style={[styles.circuitStem, styles.circuitStemTwo]} />
+      <View style={[styles.circuitNode, styles.circuitNodeOne]} />
+      <View style={[styles.circuitNode, styles.circuitNodeTwo]} />
+      <View style={[styles.circuitNode, styles.circuitNodeThree]} />
+    </View>
   );
 }
 
@@ -119,6 +139,98 @@ export const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
+    overflow: "hidden",
+  },
+  scroll: {
+    flex: 1,
+    backgroundColor: "transparent",
+  },
+  circuitLayer: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  circuitGlow: {
+    position: "absolute",
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: "rgba(10,132,255,0.10)",
+    shadowColor: colors.blue,
+    shadowOpacity: 0.35,
+    shadowRadius: 70,
+    shadowOffset: { width: 0, height: 0 },
+  },
+  circuitGlowTop: {
+    top: -80,
+    right: -92,
+  },
+  circuitGlowBottom: {
+    bottom: 80,
+    left: -120,
+    backgroundColor: "rgba(255,59,48,0.07)",
+    shadowColor: colors.emergency,
+  },
+  circuitLine: {
+    position: "absolute",
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: "rgba(10,132,255,0.18)",
+  },
+  circuitLineOne: {
+    top: 168,
+    left: 22,
+    right: 36,
+  },
+  circuitLineTwo: {
+    top: 376,
+    left: 82,
+    right: -20,
+    backgroundColor: "rgba(34,197,94,0.13)",
+  },
+  circuitLineThree: {
+    bottom: 154,
+    left: -10,
+    right: 78,
+    backgroundColor: "rgba(10,132,255,0.12)",
+  },
+  circuitStem: {
+    position: "absolute",
+    width: StyleSheet.hairlineWidth,
+    backgroundColor: "rgba(10,132,255,0.16)",
+  },
+  circuitStemOne: {
+    top: 168,
+    right: 82,
+    height: 72,
+  },
+  circuitStemTwo: {
+    bottom: 154,
+    left: 74,
+    height: 88,
+    backgroundColor: "rgba(34,197,94,0.12)",
+  },
+  circuitNode: {
+    position: "absolute",
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.blue,
+    shadowColor: colors.blue,
+    shadowOpacity: 0.8,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 0 },
+  },
+  circuitNodeOne: {
+    top: 164,
+    right: 78,
+  },
+  circuitNodeTwo: {
+    top: 372,
+    left: 78,
+    backgroundColor: colors.safe,
+    shadowColor: colors.safe,
+  },
+  circuitNodeThree: {
+    bottom: 150,
+    left: 70,
   },
   screenContent: {
     padding: spacing.md,

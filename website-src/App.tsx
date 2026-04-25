@@ -4,6 +4,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import NeonCircuitBackground from "./components/NeonCircuitBackground";
 import Home from "./pages/Home";
 import Project from "./pages/Project";
 import About from "./pages/About";
@@ -25,6 +26,7 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
+          <NeonCircuitBackground />
           <Toaster />
           <Router />
         </TooltipProvider>
