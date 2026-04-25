@@ -46,7 +46,7 @@ const SIGNAL_WAVE =
 const GIF_NEON_NETWORK = "/manus-storage/neon_network_a15f76e5.gif";
 const GIF_AI_NEURAL = "/manus-storage/ai_neural_5efe04da.gif";
 const GIF_DARK_MESH = "/manus-storage/dark_mesh_5445773f.gif";
-const CITY_VIDEO = "/manus-storage/futuristic_city_da72e930.mp4";
+const GIF_AI_CODING = "/manus-storage/ai_coding_f500b457.gif";
 
 function FadeIn({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   const ref = useRef(null);
@@ -119,26 +119,19 @@ export default function Project() {
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <Navbar />
 
-      {/* ═══ HERO — with video background ═══ */}
+      {/* ═══ HERO — with AI coding GIF background ═══ */}
       <section className="relative pt-32 pb-28 overflow-hidden min-h-[85vh] flex items-center">
-        {/* Full-screen video background */}
+        {/* Full-screen AI coding GIF background */}
         <div className="absolute inset-0 pointer-events-none">
-          <video
-            src={CITY_VIDEO}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover opacity-[0.25]"
-          />
+          <img src={GIF_AI_CODING} alt="" className="w-full h-full object-cover opacity-[0.3]" />
         </div>
         {/* Neon network GIF overlay for extra texture */}
-        <div className="absolute inset-0 opacity-[0.06] pointer-events-none mix-blend-screen">
+        <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-screen">
           <img src={GIF_NEON_NETWORK} alt="" className="w-full h-full object-cover" />
         </div>
         {/* Dark gradient overlays for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[oklch(0.06_0.02_260/80%)] via-[oklch(0.06_0.02_260/50%)] to-[oklch(0.08_0.02_260)]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.06_0.02_260/60%)] via-transparent to-[oklch(0.06_0.02_260/40%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[oklch(0.06_0.02_260/85%)] via-[oklch(0.06_0.02_260/55%)] to-[oklch(0.08_0.02_260)]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.06_0.02_260/65%)] via-transparent to-[oklch(0.06_0.02_260/45%)]" />
 
         <div className="container relative z-10">
           <div className="max-w-3xl">
