@@ -150,13 +150,14 @@ export default function HomeScreen() {
   }
 
   const d = getDanger(theme)[dangerLevel];
+  const analyzeSpin = useSpin(true);
 
   return (
     <ThemeCtx.Provider value={theme}>
       <SafeAreaView style={[s.screen, { backgroundColor: theme.bg }]} edges={["top", "bottom"]}>
 
         <NeonBackground dangerLevel={dangerLevel} />
-        {aiAnalyzing && <AIOverlay message={alertMessage} spin={useSpin(aiAnalyzing)} />}
+        {aiAnalyzing && <AIOverlay message={alertMessage} spin={analyzeSpin} />}
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
