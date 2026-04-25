@@ -119,19 +119,24 @@ export default function Project() {
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <Navbar />
 
-      {/* ═══ HERO — with AI coding GIF background ═══ */}
+      {/* ═══ HERO — NYC skyline + neon network GIF ═══ */}
       <section className="relative pt-32 pb-28 overflow-hidden min-h-[85vh] flex items-center">
-        {/* Full-screen AI coding GIF background */}
-        <div className="absolute inset-0 pointer-events-none">
-          <img src={GIF_AI_CODING} alt="" className="w-full h-full object-cover opacity-[0.3]" />
-        </div>
-        {/* Neon network GIF overlay for extra texture */}
-        <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-screen">
+        {/* Layer 1: NYC skyline background image */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.2]"
+          style={{ backgroundImage: `url(${HERO_BG})`, backgroundSize: "cover", backgroundPosition: "center bottom" }}
+        />
+        {/* Layer 2: Colorful neon network GIF */}
+        <div className="absolute inset-0 pointer-events-none mix-blend-screen opacity-[0.2]">
           <img src={GIF_NEON_NETWORK} alt="" className="w-full h-full object-cover" />
         </div>
+        {/* Layer 3: AI coding GIF for extra depth */}
+        <div className="absolute inset-0 pointer-events-none mix-blend-screen opacity-[0.12]">
+          <img src={GIF_AI_CODING} alt="" className="w-full h-full object-cover" />
+        </div>
         {/* Dark gradient overlays for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[oklch(0.06_0.02_260/85%)] via-[oklch(0.06_0.02_260/55%)] to-[oklch(0.08_0.02_260)]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.06_0.02_260/65%)] via-transparent to-[oklch(0.06_0.02_260/45%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[oklch(0.06_0.02_260/75%)] via-[oklch(0.06_0.02_260/45%)] to-[oklch(0.08_0.02_260)]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.06_0.02_260/60%)] via-transparent to-[oklch(0.06_0.02_260/40%)]" />
 
         <div className="container relative z-10">
           <div className="max-w-3xl">
