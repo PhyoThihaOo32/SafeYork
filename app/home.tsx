@@ -316,67 +316,92 @@ function NeonBackground({ dangerLevel }: { dangerLevel: DangerLevel }) {
 type FireflyDatum = { x: number; y: number; size: number; color: string; dur: number; dx: number; dy: number; blink: number };
 
 const FIREFLY_DATA: FireflyDatum[] = [
-  { x: 35,  y: 60,  size: 2.5, color: "#C8FF00", dur: 5000, dx: 22,  dy: -15, blink: 0    },
-  { x: 180, y: 40,  size: 3,   color: "#FFE600", dur: 6200, dx: -18, dy: 25,  blink: 600  },
-  { x: 310, y: 95,  size: 2,   color: "#39FF14", dur: 4800, dx: 15,  dy: -20, blink: 1200 },
-  { x: 75,  y: 200, size: 2.5, color: "#FFE600", dur: 5500, dx: -25, dy: 18,  blink: 300  },
-  { x: 250, y: 180, size: 3.5, color: "#C8FF00", dur: 7000, dx: 20,  dy: -22, blink: 900  },
-  { x: 355, y: 245, size: 2,   color: "#39FF14", dur: 4500, dx: -12, dy: 15,  blink: 1500 },
-  { x: 20,  y: 360, size: 3,   color: "#FFE600", dur: 6000, dx: 28,  dy: -12, blink: 400  },
-  { x: 145, y: 330, size: 2,   color: "#C8FF00", dur: 5200, dx: -16, dy: 20,  blink: 1100 },
-  { x: 320, y: 385, size: 2.5, color: "#FFE600", dur: 4900, dx: 14,  dy: -25, blink: 700  },
-  { x: 195, y: 455, size: 3,   color: "#39FF14", dur: 5800, dx: -22, dy: 16,  blink: 200  },
-  { x: 60,  y: 525, size: 2,   color: "#FFE600", dur: 6300, dx: 18,  dy: -18, blink: 1300 },
-  { x: 280, y: 510, size: 3,   color: "#C8FF00", dur: 5100, dx: -14, dy: 22,  blink: 500  },
-  { x: 370, y: 565, size: 2.5, color: "#FFE600", dur: 4600, dx: 20,  dy: -15, blink: 800  },
-  { x: 125, y: 625, size: 2,   color: "#39FF14", dur: 5700, dx: -24, dy: 14,  blink: 1600 },
-  { x: 48,  y: 705, size: 3,   color: "#C8FF00", dur: 6100, dx: 16,  dy: -20, blink: 350  },
-  { x: 220, y: 685, size: 2,   color: "#FFE600", dur: 4700, dx: -18, dy: 24,  blink: 950  },
-  { x: 340, y: 735, size: 2.5, color: "#39FF14", dur: 5300, dx: 22,  dy: -16, blink: 1400 },
-  { x: 100, y: 805, size: 2,   color: "#FFE600", dur: 5900, dx: -15, dy: 12,  blink: 650  },
-  { x: 260, y: 825, size: 3,   color: "#C8FF00", dur: 6400, dx: 20,  dy: -18, blink: 1100 },
-  { x: 385, y: 765, size: 2,   color: "#FFE600", dur: 4800, dx: -12, dy: 14,  blink: 1700 },
+  { x: 35,  y: 80,  size: 7,  color: "#C8FF00", dur: 5000, dx: 22,  dy: -15, blink: 0    },
+  { x: 180, y: 55,  size: 9,  color: "#FFE600", dur: 6200, dx: -18, dy: 25,  blink: 400  },
+  { x: 300, y: 110, size: 6,  color: "#39FF14", dur: 4800, dx: 15,  dy: -20, blink: 800  },
+  { x: 70,  y: 210, size: 8,  color: "#FFE600", dur: 5500, dx: -25, dy: 18,  blink: 200  },
+  { x: 245, y: 190, size: 10, color: "#C8FF00", dur: 7000, dx: 20,  dy: -22, blink: 600  },
+  { x: 350, y: 260, size: 6,  color: "#39FF14", dur: 4500, dx: -12, dy: 15,  blink: 1000 },
+  { x: 25,  y: 370, size: 9,  color: "#FFE600", dur: 6000, dx: 28,  dy: -12, blink: 300  },
+  { x: 150, y: 340, size: 7,  color: "#C8FF00", dur: 5200, dx: -16, dy: 20,  blink: 700  },
+  { x: 315, y: 400, size: 8,  color: "#FFE600", dur: 4900, dx: 14,  dy: -25, blink: 500  },
+  { x: 200, y: 470, size: 9,  color: "#39FF14", dur: 5800, dx: -22, dy: 16,  blink: 100  },
+  { x: 55,  y: 540, size: 7,  color: "#FFE600", dur: 6300, dx: 18,  dy: -18, blink: 900  },
+  { x: 275, y: 525, size: 9,  color: "#C8FF00", dur: 5100, dx: -14, dy: 22,  blink: 350  },
+  { x: 365, y: 580, size: 6,  color: "#FFE600", dur: 4600, dx: 20,  dy: -15, blink: 550  },
+  { x: 130, y: 640, size: 8,  color: "#39FF14", dur: 5700, dx: -24, dy: 14,  blink: 1100 },
+  { x: 50,  y: 720, size: 9,  color: "#C8FF00", dur: 6100, dx: 16,  dy: -20, blink: 250  },
+  { x: 225, y: 700, size: 7,  color: "#FFE600", dur: 4700, dx: -18, dy: 24,  blink: 650  },
+  { x: 335, y: 750, size: 8,  color: "#39FF14", dur: 5300, dx: 22,  dy: -16, blink: 950  },
 ];
 
 function Firefly({ x, y, size, color, dur, dx, dy, blink }: FireflyDatum) {
-  const tx   = useRef(new Animated.Value(0)).current;
-  const ty   = useRef(new Animated.Value(0)).current;
-  const op   = useRef(new Animated.Value(0)).current;
+  const tx = useRef(new Animated.Value(0)).current;
+  const ty = useRef(new Animated.Value(0)).current;
+  const brightness = useRef(new Animated.Value(0.25)).current;
 
   useEffect(() => {
-    const floatX = Animated.loop(Animated.sequence([
-      Animated.timing(tx, { toValue: dx,         duration: dur,       useNativeDriver: true }),
-      Animated.timing(tx, { toValue: -dx * 0.6,  duration: dur * 0.8, useNativeDriver: true }),
-      Animated.timing(tx, { toValue: dx * 0.3,   duration: dur * 0.7, useNativeDriver: true }),
-      Animated.timing(tx, { toValue: 0,           duration: dur * 0.5, useNativeDriver: true }),
-    ]));
-    const floatY = Animated.loop(Animated.sequence([
-      Animated.timing(ty, { toValue: dy,         duration: dur * 1.1, useNativeDriver: true }),
-      Animated.timing(ty, { toValue: -dy * 0.5,  duration: dur * 0.9, useNativeDriver: true }),
-      Animated.timing(ty, { toValue: dy * 0.35,  duration: dur * 0.7, useNativeDriver: true }),
-      Animated.timing(ty, { toValue: 0,           duration: dur * 0.4, useNativeDriver: true }),
-    ]));
-    const glow = Animated.loop(Animated.sequence([
+    Animated.loop(Animated.sequence([
+      Animated.timing(tx, { toValue: dx,        duration: dur,       useNativeDriver: true }),
+      Animated.timing(tx, { toValue: -dx * 0.6, duration: dur * 0.8, useNativeDriver: true }),
+      Animated.timing(tx, { toValue: dx * 0.3,  duration: dur * 0.7, useNativeDriver: true }),
+      Animated.timing(tx, { toValue: 0,          duration: dur * 0.5, useNativeDriver: true }),
+    ])).start();
+
+    Animated.loop(Animated.sequence([
+      Animated.timing(ty, { toValue: dy,        duration: dur * 1.1, useNativeDriver: true }),
+      Animated.timing(ty, { toValue: -dy * 0.5, duration: dur * 0.9, useNativeDriver: true }),
+      Animated.timing(ty, { toValue: dy * 0.3,  duration: dur * 0.7, useNativeDriver: true }),
+      Animated.timing(ty, { toValue: 0,          duration: dur * 0.4, useNativeDriver: true }),
+    ])).start();
+
+    // Always visible — dim between pulses, bright when blinking
+    Animated.loop(Animated.sequence([
       Animated.delay(blink),
-      Animated.timing(op, { toValue: 0.9, duration: 250, useNativeDriver: true }),
-      Animated.timing(op, { toValue: 0.4, duration: 350, useNativeDriver: true }),
-      Animated.timing(op, { toValue: 0.85, duration: 200, useNativeDriver: true }),
-      Animated.timing(op, { toValue: 0,   duration: 600, useNativeDriver: true }),
-      Animated.delay(1200 + (blink % 900)),
-    ]));
-    floatX.start(); floatY.start(); glow.start();
-    return () => { floatX.stop(); floatY.stop(); glow.stop(); };
+      Animated.timing(brightness, { toValue: 1,    duration: 300, useNativeDriver: true }),
+      Animated.timing(brightness, { toValue: 0.65, duration: 250, useNativeDriver: true }),
+      Animated.timing(brightness, { toValue: 0.95, duration: 200, useNativeDriver: true }),
+      Animated.timing(brightness, { toValue: 0.22, duration: 500, useNativeDriver: true }),
+      Animated.delay(600 + (blink % 700)),
+    ])).start();
+
+    return () => {};
   }, []);
 
+  const halo = size * 5;
   return (
-    <Animated.View pointerEvents="none" style={{
-      position: "absolute", left: x, top: y,
-      width: size, height: size, borderRadius: size / 2,
-      backgroundColor: color,
-      shadowColor: color, shadowOpacity: 1, shadowRadius: size * 5,
-      shadowOffset: { width: 0, height: 0 },
-      opacity: op, transform: [{ translateX: tx }, { translateY: ty }],
-    }} />
+    <Animated.View
+      pointerEvents="none"
+      style={{
+        position: "absolute",
+        left: x - halo / 2,
+        top:  y - halo / 2,
+        width: halo, height: halo,
+        alignItems: "center", justifyContent: "center",
+        opacity: brightness,
+        transform: [{ translateX: tx }, { translateY: ty }],
+      }}
+    >
+      {/* Soft outer glow */}
+      <View style={{
+        position: "absolute",
+        width: halo, height: halo, borderRadius: halo / 2,
+        backgroundColor: color, opacity: 0.12,
+      }} />
+      {/* Mid glow ring */}
+      <View style={{
+        position: "absolute",
+        width: size * 2.5, height: size * 2.5, borderRadius: size * 1.25,
+        backgroundColor: color, opacity: 0.35,
+      }} />
+      {/* Solid core */}
+      <View style={{
+        width: size, height: size, borderRadius: size / 2,
+        backgroundColor: color,
+        shadowColor: color, shadowOpacity: 1,
+        shadowRadius: size * 3, shadowOffset: { width: 0, height: 0 },
+      }} />
+    </Animated.View>
   );
 }
 
