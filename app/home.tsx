@@ -213,7 +213,7 @@ export default function HomeScreen() {
           <View style={[s.divider, { backgroundColor: theme.borderMid }]} />
           <ContactsPanel />
           <View style={[s.divider, { backgroundColor: theme.borderMid }]} />
-          <ActivityPanel />
+          <AreaSafetyPanel />
 
         </ScrollView>
       </SafeAreaView>
@@ -605,25 +605,131 @@ function ContactsPanel() {
   );
 }
 
-// ─── Activity ─────────────────────────────────────────────────────────────────
+// ─── Area Safety Panel ────────────────────────────────────────────────────────
 
-function ActivityPanel() {
+type RiskLevel = "LOW" | "MODERATE" | "HIGH" | "CRITICAL";
+
+const AREA_DATA: {
+  neighborhood: string; borough: string;
+  risk: RiskLevel; score: number;
+  crimeIndex: number; incidents: number;
+  warning: string | null;
+  recentCrimes: { type: string; time: string; distance: string; severity: RiskLevel }[];
+}[] = [
+  {
+    neighborhood: "East Harlem", borough: "Manhattan",
+    risk: "HIGH", score: 28, crimeIndex: 74, incidents: 12,
+    warning: "High crime zone — stay alert and avoid isolated areas after dark.",
+    recentCrimes: [
+      { type: "Armed Robbery",   time: "2h ago",    distance: "0.3 mi", severity: "CRITICAL" },
+      { type: "Assault",         time: "5h ago",    distance: "0.6 mi", severity: "HIGH"     },
+      { type: "Vehicle Break-in",time: "Yesterday", distance: "0.2 mi", severity: "MODERATE" },
+      { type: "Petty Theft",     time: "Yesterday", distance: "0.4 mi", severity: "LOW"      },
+    ],
+  },
+];
+
+function AreaSafetyPanel() {
   const th = useTheme();
-  const EVENTS = [
-    { time: "2h ago",     event: "Walking Home mode completed",  success: true  },
-    { time: "Yesterday",  event: "Check-in: Marked safe",        success: true  },
-    { time: "3 days ago", event: "Added Dr. Wilson to contacts", success: false },
-  ];
+  const area = AREA_DATA[0];
+  const scanPulse = usePulse(true, 2000);
+  const warnPulse = usePulse(area.risk === "CRITICAL" || area.risk === "HIGH", 900);
+
+  const riskColor = (r: RiskLevel) =>
+    r === "CRITICAL" ? th.pink : r === "HIGH" ? th.orange : r === "MODERATE" ? th.yellow : th.green;
+  const riskGlow  = (r: RiskLevel) =>
+    r === "CRITICAL" ? th.pinkGlow : r === "HIGH" ? th.orangeGlow : r === "MODERATE" ? th.yellowGlow : th.greenGlow;
+
+  const areaColor = riskColor(area.risk);
+  const areaGlow  = riskGlow(area.risk);
+
+  // Score bar — score is 0-100 where 0=safest, 100=most dangerous
+  const barWidth = `${area.score}%` as const;
+
   return (
     <View style={s.section}>
-      <Text style={[s.sectionTitle, { color: th.textMuted }]}>ACTIVITY LOG</Text>
-      {EVENTS.map((ev, i) => (
-        <View key={i} style={[s.eventRow, i < EVENTS.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: th.borderMid }]}>
-          <View style={[s.eventDot, { backgroundColor: ev.success ? th.green : th.blue, shadowColor: ev.success ? th.greenGlow : th.blueGlow }]} />
-          <Text style={[s.eventText, { color: th.textMuted }]}>{ev.event}</Text>
-          <Text style={[s.eventTime, { color: th.textDim }]}>{ev.time}</Text>
+
+      {/* Header */}
+      <View style={s.sectionHeader}>
+        <View style={s.sectionTitleRow}>
+          <Animated.Text style={[s.aiGlyphSm, { color: areaColor, shadowColor: areaGlow, opacity: scanPulse }]}>◎</Animated.Text>
+          <View>
+            <Text style={[s.sectionTitle, { color: th.textMuted }]}>AREA MONITORING</Text>
+            <Text style={[s.guardianSub, { color: th.textDim }]}>{area.neighborhood}, {area.borough}</Text>
+          </View>
         </View>
-      ))}
+        {/* Risk badge */}
+        <Animated.View style={[
+          s.riskBadge,
+          { borderColor: areaColor, backgroundColor: `${areaColor}15` },
+          (area.risk === "HIGH" || area.risk === "CRITICAL") && { opacity: warnPulse },
+        ]}>
+          <Text style={[s.riskBadgeText, { color: areaColor, shadowColor: areaGlow }]}>{area.risk} RISK</Text>
+        </Animated.View>
+      </View>
+
+      {/* Safety score bar */}
+      <View style={s.scoreWrap}>
+        <View style={s.scoreRow}>
+          <Text style={[s.scoreLabel, { color: th.textDim }]}>SAFETY SCORE</Text>
+          <Text style={[s.scoreValue, { color: areaColor }]}>{area.score}<Text style={s.scoreMax}>/100</Text></Text>
+        </View>
+        <View style={[s.scoreTrack, { backgroundColor: th.borderMid }]}>
+          <View style={[s.scoreFill, { width: barWidth, backgroundColor: areaColor, shadowColor: areaGlow }]} />
+        </View>
+        <View style={s.scoreFooter}>
+          <Text style={[s.scoreFooterText, { color: th.green }]}>SAFE</Text>
+          <Text style={[s.scoreFooterText, { color: th.textDim }]}>Crime Index: {area.crimeIndex}</Text>
+          <Text style={[s.scoreFooterText, { color: th.pink }]}>DANGER</Text>
+        </View>
+      </View>
+
+      {/* Warning banner */}
+      {area.warning && (
+        <View style={[s.warningBanner, { borderColor: areaColor, backgroundColor: `${areaColor}10`, borderLeftColor: areaColor }]}>
+          <Text style={[s.warningIcon, { color: areaColor }]}>⚠</Text>
+          <Text style={[s.warningText, { color: th.textMuted }]}>{area.warning}</Text>
+        </View>
+      )}
+
+      {/* Stats row */}
+      <View style={[s.statsRow, { borderColor: th.borderMid }]}>
+        {[
+          { label: "INCIDENTS",    value: `${area.incidents}`, sub: "last 24h",  color: areaColor },
+          { label: "CRIME INDEX",  value: `${area.crimeIndex}`, sub: "out of 100", color: areaColor },
+          { label: "NEARBY USERS", value: "7",  sub: "SafeYork active", color: th.blue },
+        ].map((stat, i) => (
+          <View key={stat.label} style={[s.statCell, i < 2 && { borderRightWidth: StyleSheet.hairlineWidth, borderRightColor: th.borderMid }]}>
+            <Text style={[s.statValue, { color: stat.color }]}>{stat.value}</Text>
+            <Text style={[s.statLabel, { color: th.textDim }]}>{stat.label}</Text>
+            <Text style={[s.statSub, { color: th.textDim }]}>{stat.sub}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Recent crimes */}
+      <View style={s.crimesWrap}>
+        <Text style={[s.crimesTitle, { color: th.textDim }]}>RECENT INCIDENTS NEARBY</Text>
+        {area.recentCrimes.map((crime, i) => {
+          const cc = riskColor(crime.severity);
+          return (
+            <View key={i} style={[
+              s.crimeRow,
+              i < area.recentCrimes.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: th.borderMid },
+            ]}>
+              <View style={[s.crimeDot, { backgroundColor: cc, shadowColor: riskGlow(crime.severity) }]} />
+              <View style={{ flex: 1 }}>
+                <Text style={[s.crimeType, { color: th.text }]}>{crime.type}</Text>
+                <Text style={[s.crimeMeta, { color: th.textDim }]}>{crime.time} · {crime.distance} away</Text>
+              </View>
+              <View style={[s.crimePill, { borderColor: `${cc}60`, backgroundColor: `${cc}12` }]}>
+                <Text style={[s.crimePillText, { color: cc }]}>{crime.severity}</Text>
+              </View>
+            </View>
+          );
+        })}
+      </View>
+
     </View>
   );
 }
@@ -749,9 +855,32 @@ const s = StyleSheet.create({
   contactRole:      { fontSize: f.xs, letterSpacing: 2, marginTop: 2 },
   contactPhone:     { fontSize: f.xs, letterSpacing: 0.5 },
 
-  // Events
-  eventRow:  { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12 },
-  eventDot:  { width: 8, height: 8, borderRadius: 4, shadowOpacity: 1, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } },
-  eventText: { flex: 1, fontSize: f.sm, letterSpacing: 0.3 },
-  eventTime: { fontSize: f.xs, letterSpacing: 0.5 },
+  // Area safety
+  riskBadge:      { borderWidth: 1, borderRadius: 4, paddingHorizontal: 10, paddingVertical: 4 },
+  riskBadgeText:  { fontSize: f.xs, fontWeight: "800", letterSpacing: 2, shadowOpacity: 1, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } },
+  scoreWrap:      { gap: 8 },
+  scoreRow:       { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" },
+  scoreLabel:     { fontSize: f.xs, letterSpacing: 2 },
+  scoreValue:     { fontSize: f.xl, fontWeight: "800", letterSpacing: 1 },
+  scoreMax:       { fontSize: f.xs, fontWeight: "400" },
+  scoreTrack:     { height: 3, borderRadius: 2, overflow: "hidden" },
+  scoreFill:      { height: 3, borderRadius: 2, shadowOpacity: 1, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } },
+  scoreFooter:    { flexDirection: "row", justifyContent: "space-between" },
+  scoreFooterText:{ fontSize: 9, letterSpacing: 1 },
+  warningBanner:  { flexDirection: "row", alignItems: "flex-start", gap: 10, borderWidth: 1, borderLeftWidth: 3, borderRadius: 6, padding: 12 },
+  warningIcon:    { fontSize: f.md, marginTop: 1 },
+  warningText:    { flex: 1, fontSize: f.xs, lineHeight: 18, letterSpacing: 0.3 },
+  statsRow:       { flexDirection: "row", borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, overflow: "hidden" },
+  statCell:       { flex: 1, alignItems: "center", paddingVertical: 14, gap: 3 },
+  statValue:      { fontSize: f.xl, fontWeight: "800", letterSpacing: 1 },
+  statLabel:      { fontSize: 9, letterSpacing: 2, fontWeight: "700" },
+  statSub:        { fontSize: 9, letterSpacing: 0.5 },
+  crimesWrap:     { gap: 12 },
+  crimesTitle:    { fontSize: 9, letterSpacing: 3, fontWeight: "700" },
+  crimeRow:       { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12 },
+  crimeDot:       { width: 8, height: 8, borderRadius: 4, shadowOpacity: 1, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } },
+  crimeType:      { fontSize: f.sm, fontWeight: "600", letterSpacing: 0.3 },
+  crimeMeta:      { fontSize: f.xs, letterSpacing: 0.5, marginTop: 2 },
+  crimePill:      { borderWidth: 1, borderRadius: 4, paddingHorizontal: 8, paddingVertical: 3 },
+  crimePillText:  { fontSize: 9, fontWeight: "800", letterSpacing: 1 },
 });
