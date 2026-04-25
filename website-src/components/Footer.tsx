@@ -11,10 +11,10 @@ export default function Footer() {
           </span>
         </div>
         <p className="text-[10px] text-[oklch(0.35_0.02_260)] font-[family-name:var(--font-mono)] tracking-wide">
-          &copy; 2025 YangonDevs &mdash; CUNY AI Innovation Challenge
+          &copy; 2026 YangonDevs &mdash; CUNY AI Innovation Challenge
         </p>
         <a
-          href="https://github.com/PhyoThihaOo32/SafeYork-"
+          href="https://github.com/PhyoThihaOo32/SafeYork"
           target="_blank"
           rel="noopener noreferrer"
           className="text-[10px] text-[oklch(0.35_0.02_260)] hover:text-[oklch(0.85_0.18_192/60%)] transition-colors font-[family-name:var(--font-mono)] tracking-wide uppercase"
