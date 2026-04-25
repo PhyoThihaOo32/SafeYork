@@ -13,12 +13,12 @@ import { c, DANGER, DangerLevel, f } from "../src/theme";
 // ─── Animation hooks ──────────────────────────────────────────────────────────
 
 function usePulse(active = true, duration = 1200) {
-  const v = useRef(new Animated.Value(1)).current;
+  const v = useRef(new Animated.Value(0.3)).current;
   useEffect(() => {
-    if (!active) { v.setValue(1); return; }
+    if (!active) { v.setValue(0.3); return; }
     const a = Animated.loop(Animated.sequence([
-      Animated.timing(v, { toValue: 0.3, duration, useNativeDriver: true }),
       Animated.timing(v, { toValue: 1, duration, useNativeDriver: true }),
+      Animated.timing(v, { toValue: 0.3, duration, useNativeDriver: true }),
     ]));
     a.start(); return () => a.stop();
   }, [active, duration]);
@@ -59,7 +59,18 @@ function useSpin(active = true) {
   return r.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
 }
 
+function useScanLine() {
+  const y = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const a = Animated.loop(Animated.timing(y, { toValue: 1, duration: 7000, useNativeDriver: true }));
+    a.start(); return () => a.stop();
+  }, []);
+  return y.interpolate({ inputRange: [0, 1], outputRange: [-20, 900] });
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
+
+type SensorKey = "heart" | "temp" | "voice" | "motion";
 
 export default function HomeScreen() {
   const [dangerLevel, setDangerLevel] = useState<DangerLevel>(0);
@@ -75,27 +86,36 @@ export default function HomeScreen() {
   const [alertLevel, setAlertLevel] = useState<"none" | "contacts" | "nearby" | "authorities">("none");
   const [nearbyRange, setNearbyRange] = useState(1);
   const [lastTapTime, setLastTapTime] = useState(0);
+  const [aiSensors, setAiSensors] = useState<Record<SensorKey, boolean>>({
+    heart: true, temp: true, voice: true, motion: true,
+  });
 
   const d = DANGER[dangerLevel];
 
+  function toggleSensor(key: SensorKey) {
+    setAiSensors(prev => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  // Biometric simulation
   useEffect(() => {
     const id = setInterval(() => {
       if (isSOSActive) return;
-      setHeartRate(v => Math.max(60, Math.min(95, v + Math.floor(Math.random() * 8 - 4))));
-      setBodyTemp(v => parseFloat((v + (Math.random() * 0.2 - 0.1)).toFixed(1)));
-      setVoiceStress(v => Math.max(0, Math.min(30, v + Math.floor(Math.random() * 6 - 3))));
+      if (aiSensors.heart) setHeartRate(v => Math.max(60, Math.min(95, v + Math.floor(Math.random() * 8 - 4))));
+      if (aiSensors.temp)  setBodyTemp(v => parseFloat((v + (Math.random() * 0.2 - 0.1)).toFixed(1)));
+      if (aiSensors.voice) setVoiceStress(v => Math.max(0, Math.min(30, v + Math.floor(Math.random() * 6 - 3))));
     }, 2000);
     return () => clearInterval(id);
-  }, [isSOSActive]);
+  }, [isSOSActive, aiSensors]);
 
+  // AI threat detection — only from enabled sensors
   useEffect(() => {
     if (isSOSActive) return;
     let trigger = "";
     let msg = "";
-    if (heartRate >= 200) { trigger = "HEART RATE"; msg = `Tachycardia detected — ${heartRate} BPM`; }
-    else if (bodyTemp >= 103) { trigger = "BODY TEMP"; msg = `Hyperthermia detected — ${bodyTemp}°F`; }
-    else if (voiceStress >= 85) { trigger = "VOICE"; msg = "Extreme distress in voice patterns"; }
-    else if (motionPattern === "FALL" || motionPattern === "SEIZURE") { trigger = motionPattern; msg = `${motionPattern} detected`; }
+    if (aiSensors.heart && heartRate >= 200)  { trigger = "HEART RATE"; msg = `Tachycardia detected — ${heartRate} BPM`; }
+    else if (aiSensors.temp && bodyTemp >= 103) { trigger = "BODY HEAT";  msg = `Hyperthermia detected — ${bodyTemp}°F`; }
+    else if (aiSensors.voice && voiceStress >= 85) { trigger = "VOICE";  msg = "Extreme distress in voice patterns"; }
+    else if (aiSensors.motion && (motionPattern === "FALL" || motionPattern === "SEIZURE")) { trigger = motionPattern; msg = `${motionPattern} detected`; }
     if (trigger) {
       setAiAnalyzing(true);
       setDetectionTrigger(trigger);
@@ -107,7 +127,7 @@ export default function HomeScreen() {
         setAlertLevel("authorities");
       }, 2000);
     }
-  }, [heartRate, bodyTemp, voiceStress, motionPattern, isSOSActive]);
+  }, [heartRate, bodyTemp, voiceStress, motionPattern, isSOSActive, aiSensors]);
 
   function handleSOS() {
     const now = Date.now();
@@ -140,6 +160,11 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={s.screen} edges={["top", "bottom"]}>
+
+      {/* Dim neon background */}
+      <NeonBackground dangerLevel={dangerLevel} />
+
+      {/* AI Analyzing overlay */}
       {aiAnalyzing && <AIOverlay message={alertMessage} spin={useSpin(aiAnalyzing)} />}
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
@@ -170,12 +195,13 @@ export default function HomeScreen() {
 
         <View style={s.divider} />
 
-        {/* ── Biometrics ── */}
+        {/* ── Quick biometrics ── */}
         <BiometricsRow
           heartRate={heartRate}
           bodyTemp={bodyTemp}
           voiceStress={voiceStress}
           motionPattern={motionPattern}
+          aiSensors={aiSensors}
         />
 
         <View style={s.divider} />
@@ -197,7 +223,13 @@ export default function HomeScreen() {
 
         {/* ── Guardian AI ── */}
         <GuardianPanel
+          heartRate={heartRate}
+          bodyTemp={bodyTemp}
+          voiceStress={voiceStress}
+          motionPattern={motionPattern}
           isActive={isSOSActive}
+          aiSensors={aiSensors}
+          toggleSensor={toggleSensor}
           onPanic={() => { setHeartRate(210); setVoiceStress(90); setBodyTemp(99.2); }}
           onFall={() => setMotionPattern("FALL")}
           onHeat={() => { setBodyTemp(104.5); setHeartRate(125); }}
@@ -215,6 +247,35 @@ export default function HomeScreen() {
 
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+// ─── Neon Background ─────────────────────────────────────────────────────────
+
+function NeonBackground({ dangerLevel }: { dangerLevel: DangerLevel }) {
+  const p1 = usePulse(true, 3200);
+  const p2 = usePulse(true, 4600);
+  const p3 = usePulse(true, 2700);
+  const scanY = useScanLine();
+
+  return (
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+      {/* Dim glow orbs */}
+      <Animated.View style={[s.bgOrb, { top: -100, left: -80, width: 320, height: 320,
+        backgroundColor: dangerLevel >= 3 ? "rgba(255,45,120,0.05)" : "rgba(0,212,255,0.04)", opacity: p1 }]} />
+      <Animated.View style={[s.bgOrb, { bottom: 120, right: -100, width: 280, height: 280,
+        backgroundColor: "rgba(57,255,20,0.03)", opacity: p2 }]} />
+      <Animated.View style={[s.bgOrb, { top: "40%", left: "20%", width: 200, height: 200,
+        backgroundColor: dangerLevel >= 2 ? "rgba(255,107,0,0.04)" : "rgba(189,0,255,0.03)", opacity: p3 }]} />
+
+      {/* Scanline sweep */}
+      <Animated.View style={[s.scanLine, { transform: [{ translateY: scanY }] }]} />
+
+      {/* Vertical grid lines (static, very dim) */}
+      <View style={[s.gridLine, { left: "25%" }]} />
+      <View style={[s.gridLine, { left: "50%" }]} />
+      <View style={[s.gridLine, { left: "75%" }]} />
+    </View>
   );
 }
 
@@ -288,7 +349,7 @@ function SOSButton({ tapCount, dangerLevel, isActive, onPress }: {
   }
 
   const label = tapCount >= 9 ? "POLICE" : tapCount >= 6 ? "NEARBY" : tapCount >= 3 ? "CONTACTS" : "SOS";
-  const sub = tapCount >= 3 ? `LEVEL ${dangerLevel} · ACTIVE` : "HOLD TO ACTIVATE";
+  const sub = tapCount >= 3 ? `LEVEL ${dangerLevel} · ACTIVE` : "TAP TO ACTIVATE";
 
   return (
     <View style={s.sosWrap}>
@@ -299,12 +360,9 @@ function SOSButton({ tapCount, dangerLevel, isActive, onPress }: {
           style={[s.sosRing, { borderColor: d.color, transform: [{ scale: r.scale }], opacity: r.opacity, shadowColor: d.glow }]}
         />
       ))}
-
       <Pressable onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>
         <Animated.View style={[s.sosBtn, { borderColor: d.color, shadowColor: d.glow, transform: [{ scale: btnScale }] }]}>
-          {tapCount > 0 && (
-            <Text style={[s.tapCount, { color: d.color }]}>{tapCount}</Text>
-          )}
+          {tapCount > 0 && <Text style={[s.tapCount, { color: d.color }]}>{tapCount}</Text>}
           <Text style={[s.sosLabel, { color: d.color, shadowColor: d.glow }]}>{label}</Text>
           <Text style={s.sosSub}>{sub}</Text>
         </Animated.View>
@@ -313,48 +371,250 @@ function SOSButton({ tapCount, dangerLevel, isActive, onPress }: {
   );
 }
 
-// ─── Biometrics ───────────────────────────────────────────────────────────────
+// ─── Quick Biometrics ────────────────────────────────────────────────────────
 
-function BiometricsRow({ heartRate, bodyTemp, voiceStress, motionPattern }: {
-  heartRate: number; bodyTemp: number; voiceStress: number; motionPattern: string;
+function BiometricsRow({ heartRate, bodyTemp, voiceStress, motionPattern, aiSensors }: {
+  heartRate: number; bodyTemp: number; voiceStress: number;
+  motionPattern: string; aiSensors: Record<SensorKey, boolean>;
 }) {
   const metrics = [
-    {
-      value: `${heartRate}`, unit: "BPM", label: "HEART",
-      color: heartRate >= 200 ? c.pink : heartRate >= 100 ? c.yellow : c.green,
-      alert: heartRate >= 200,
-    },
-    {
-      value: bodyTemp.toFixed(1), unit: "°F", label: "TEMP",
-      color: bodyTemp >= 103 ? c.pink : bodyTemp >= 100 ? c.yellow : c.blue,
-      alert: bodyTemp >= 103,
-    },
-    {
-      value: `${voiceStress}`, unit: "%", label: "VOICE",
-      color: voiceStress >= 85 ? c.pink : voiceStress >= 50 ? c.yellow : c.green,
-      alert: voiceStress >= 85,
-    },
-    {
-      value: motionPattern, unit: "", label: "MOTION",
+    { key: "heart" as SensorKey, value: `${heartRate}`, unit: "BPM",  label: "HEART",
+      color: heartRate >= 200 ? c.pink : heartRate >= 100 ? c.yellow : c.green, alert: heartRate >= 200 },
+    { key: "temp"  as SensorKey, value: bodyTemp.toFixed(1), unit: "°F", label: "TEMP",
+      color: bodyTemp >= 103 ? c.pink : bodyTemp >= 100 ? c.yellow : c.blue, alert: bodyTemp >= 103 },
+    { key: "voice" as SensorKey, value: `${voiceStress}`, unit: "%", label: "VOICE",
+      color: voiceStress >= 85 ? c.pink : voiceStress >= 50 ? c.yellow : c.green, alert: voiceStress >= 85 },
+    { key: "motion" as SensorKey, value: motionPattern, unit: "", label: "MOTION",
       color: motionPattern === "FALL" || motionPattern === "SEIZURE" ? c.pink : c.green,
-      alert: motionPattern === "FALL" || motionPattern === "SEIZURE",
-    },
+      alert: motionPattern === "FALL" || motionPattern === "SEIZURE" },
   ];
 
   return (
     <View style={s.bioRow}>
       {metrics.map((m, i) => {
         const alertPulse = usePulse(m.alert, 500);
+        const enabled = aiSensors[m.key];
         return (
           <View key={m.label} style={[s.bioCell, i < metrics.length - 1 && s.bioCellBorder]}>
-            <Animated.Text style={[s.bioValue, { color: m.color, shadowColor: m.color }, m.alert && { opacity: alertPulse }]}>
+            <Animated.Text style={[s.bioValue, { color: enabled ? m.color : c.textDim, shadowColor: m.color },
+              m.alert && enabled && { opacity: alertPulse }]}>
               {m.value}
               {m.unit ? <Text style={s.bioUnit}>{m.unit}</Text> : null}
             </Animated.Text>
-            <Text style={s.bioLabel}>{m.label}</Text>
+            <Text style={[s.bioLabel, !enabled && { color: c.textDim }]}>{m.label}</Text>
+            {!enabled && <Text style={s.bioOff}>OFF</Text>}
           </View>
         );
       })}
+    </View>
+  );
+}
+
+// ─── EQ Bars ─────────────────────────────────────────────────────────────────
+
+function EqBars({ active, color }: { active: boolean; color: string }) {
+  const b0 = usePulse(active, 320);
+  const b1 = usePulse(active, 480);
+  const b2 = usePulse(active, 260);
+  const b3 = usePulse(active, 540);
+  const b4 = usePulse(active, 380);
+  const b5 = usePulse(active, 420);
+  const bars = [b0, b1, b2, b3, b4, b5];
+
+  return (
+    <View style={s.eqWrap}>
+      {bars.map((b, i) => (
+        <Animated.View
+          key={i}
+          style={[s.eqBar, {
+            backgroundColor: color,
+            transform: [{ scaleY: b }],
+            opacity: active ? 1 : 0.12,
+          }]}
+        />
+      ))}
+    </View>
+  );
+}
+
+// ─── Heartbeat Line ──────────────────────────────────────────────────────────
+
+function HeartbeatLine({ active, color }: { active: boolean; color: string }) {
+  const beat = usePulse(active, 800);
+  return (
+    <View style={s.hbWrap}>
+      {[0.2, 1, 0.3, 0.6, 0.2, 0.4, 1, 0.2].map((h, i) => (
+        <Animated.View
+          key={i}
+          style={[s.hbBar, {
+            backgroundColor: color,
+            height: 24 * h,
+            opacity: active ? beat : 0.1,
+          }]}
+        />
+      ))}
+    </View>
+  );
+}
+
+// ─── Guardian AI Panel ────────────────────────────────────────────────────────
+
+function GuardianPanel({ heartRate, bodyTemp, voiceStress, motionPattern, isActive, aiSensors, toggleSensor, onPanic, onFall, onHeat }: {
+  heartRate: number; bodyTemp: number; voiceStress: number; motionPattern: string;
+  isActive: boolean; aiSensors: Record<SensorKey, boolean>;
+  toggleSensor: (k: SensorKey) => void;
+  onPanic: () => void; onFall: () => void; onHeat: () => void;
+}) {
+  const spin = useSpin(true);
+  const onlinePulse = usePulse(true, 1400);
+
+  const activeSensorCount = Object.values(aiSensors).filter(Boolean).length;
+
+  const sensors: {
+    key: SensorKey; icon: string; label: string;
+    value: string; unit: string; color: string;
+    status: string; alert: boolean;
+  }[] = [
+    {
+      key: "heart", icon: "♡", label: "HEART BEAT",
+      value: `${heartRate}`, unit: "BPM",
+      color: heartRate >= 200 ? c.pink : heartRate >= 100 ? c.yellow : c.blue,
+      status: heartRate >= 200 ? "CRITICAL" : heartRate >= 100 ? "ELEVATED" : "NORMAL",
+      alert: heartRate >= 200,
+    },
+    {
+      key: "temp", icon: "⊕", label: "BODY HEAT",
+      value: bodyTemp.toFixed(1), unit: "°F",
+      color: bodyTemp >= 103 ? c.pink : bodyTemp >= 100 ? c.yellow : c.green,
+      status: bodyTemp >= 103 ? "CRITICAL" : bodyTemp >= 100 ? "ELEVATED" : "NORMAL",
+      alert: bodyTemp >= 103,
+    },
+    {
+      key: "voice", icon: "≋", label: "VOICE / SOUND",
+      value: `${voiceStress}`, unit: "%",
+      color: voiceStress >= 85 ? c.pink : voiceStress >= 50 ? c.yellow : c.green,
+      status: voiceStress >= 85 ? "DISTRESS" : voiceStress >= 50 ? "STRESS" : "CALM",
+      alert: voiceStress >= 85,
+    },
+    {
+      key: "motion", icon: "⊙", label: "MOTION",
+      value: motionPattern, unit: "",
+      color: motionPattern === "FALL" || motionPattern === "SEIZURE" ? c.pink : c.green,
+      status: motionPattern === "FALL" ? "FALL DETECTED" : motionPattern === "SEIZURE" ? "SEIZURE" : "STABLE",
+      alert: motionPattern === "FALL" || motionPattern === "SEIZURE",
+    },
+  ];
+
+  return (
+    <View style={s.section}>
+
+      {/* Header */}
+      <View style={s.sectionHeader}>
+        <View style={s.sectionTitleRow}>
+          <Animated.Text style={[s.aiGlyphSm, { transform: [{ rotate: spin }] }]}>◎</Animated.Text>
+          <View>
+            <Text style={s.sectionTitle}>GUARDIAN AI</Text>
+            <Text style={s.guardianSub}>{activeSensorCount}/4 sensors active</Text>
+          </View>
+        </View>
+        <View style={s.onlineBadge}>
+          <Animated.View style={[s.onlineDot, { opacity: onlinePulse }]} />
+          <Text style={s.onlineText}>{activeSensorCount > 0 ? "MONITORING" : "STANDBY"}</Text>
+        </View>
+      </View>
+
+      {/* Sensor cards — 2×2 grid */}
+      <View style={s.sensorGrid}>
+        {sensors.map((sensor) => {
+          const enabled = aiSensors[sensor.key];
+          const cardColor = enabled ? sensor.color : c.textDim;
+          const alertPulse = usePulse(sensor.alert && enabled, 600);
+
+          return (
+            <Animated.View
+              key={sensor.key}
+              style={[
+                s.sensorCard,
+                { borderColor: enabled ? `${cardColor}50` : c.border },
+                sensor.alert && enabled && {
+                  borderColor: sensor.color,
+                  shadowColor: sensor.color,
+                  shadowOpacity: 0.5,
+                  shadowRadius: 10,
+                  shadowOffset: { width: 0, height: 0 },
+                },
+                sensor.alert && enabled && { opacity: alertPulse },
+              ]}
+            >
+              {/* Card header */}
+              <View style={s.sensorCardHeader}>
+                <View style={s.sensorIconRow}>
+                  <Text style={[s.sensorIcon, { color: cardColor }]}>{sensor.icon}</Text>
+                  <Text style={[s.sensorLabel, { color: enabled ? c.textMuted : c.textDim }]}>
+                    {sensor.label}
+                  </Text>
+                </View>
+                <Pressable
+                  onPress={() => toggleSensor(sensor.key)}
+                  style={[s.togglePill, enabled
+                    ? { borderColor: cardColor, backgroundColor: `${cardColor}18` }
+                    : { borderColor: c.borderMid, backgroundColor: "transparent" }
+                  ]}
+                >
+                  <Text style={[s.toggleText, { color: enabled ? cardColor : c.textDim }]}>
+                    {enabled ? "ON" : "OFF"}
+                  </Text>
+                </Pressable>
+              </View>
+
+              {/* Value */}
+              <View style={s.sensorValueRow}>
+                <Text style={[s.sensorValue, { color: cardColor }]}>
+                  {sensor.value}
+                  {sensor.unit ? <Text style={s.sensorUnit}> {sensor.unit}</Text> : null}
+                </Text>
+              </View>
+
+              {/* Live waveform */}
+              {sensor.key === "heart" || sensor.key === "voice"
+                ? <EqBars active={enabled} color={cardColor} />
+                : <HeartbeatLine active={enabled} color={cardColor} />
+              }
+
+              {/* Status */}
+              <View style={s.sensorStatus}>
+                <View style={[s.statusPip, { backgroundColor: enabled ? sensor.color : c.textDim }]} />
+                <Text style={[s.statusPipLabel, { color: enabled ? sensor.color : c.textDim }]}>
+                  {enabled ? sensor.status : "SENSOR OFF"}
+                </Text>
+              </View>
+            </Animated.View>
+          );
+        })}
+      </View>
+
+      {/* Demo triggers */}
+      {!isActive && (
+        <View style={s.demoWrap}>
+          <Text style={s.demoHeading}>SIMULATE EMERGENCY</Text>
+          <View style={s.demoRow}>
+            {[
+              { label: "PANIC ATTACK", fn: onPanic, color: c.pink },
+              { label: "FALL",         fn: onFall,  color: c.orange },
+              { label: "HEAT STROKE",  fn: onHeat,  color: c.yellow },
+            ].map(({ label, fn, color }) => (
+              <Pressable
+                key={label}
+                onPress={fn}
+                style={[s.demoBtn, { borderColor: `${color}60`, shadowColor: color }]}
+              >
+                <Text style={[s.demoBtnText, { color }]}>{label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      )}
+
     </View>
   );
 }
@@ -374,28 +634,17 @@ function AlertSection({ tapCount, alertLevel, alertMessage, nearbyRange, setNear
 
   return (
     <View style={s.alertSection}>
-      {/* Stage pills */}
       <View style={s.stagePills}>
         {STAGES.map((stage) => {
           const active = tapCount >= stage.threshold;
           return (
-            <View
-              key={stage.label}
-              style={[
-                s.stagePill,
-                { borderColor: active ? stage.color : c.borderMid },
-                active && { shadowColor: stage.glow, shadowOpacity: 0.8, shadowRadius: 10 },
-              ]}
-            >
-              <Text style={[s.stagePillText, { color: active ? stage.color : c.textDim }]}>
-                {stage.label}
-              </Text>
+            <View key={stage.label} style={[s.stagePill, { borderColor: active ? stage.color : c.borderMid },
+              active && { shadowColor: stage.glow, shadowOpacity: 0.8, shadowRadius: 10 }]}>
+              <Text style={[s.stagePillText, { color: active ? stage.color : c.textDim }]}>{stage.label}</Text>
             </View>
           );
         })}
       </View>
-
-      {/* Message */}
       <View style={[s.alertMsg, { borderLeftColor: alertColor }]}>
         <Text style={[s.alertMsgTitle, { color: alertColor }]}>
           {alertLevel === "authorities" ? "EMERGENCY SERVICES NOTIFIED"
@@ -404,73 +653,23 @@ function AlertSection({ tapCount, alertLevel, alertMessage, nearbyRange, setNear
         </Text>
         <Text style={s.alertMsgBody}>{alertMessage}</Text>
       </View>
-
-      {/* Range selector */}
       {alertLevel === "nearby" && (
         <View style={s.rangeWrap}>
           <Text style={s.rangeLabel}>BROADCAST RANGE</Text>
           <View style={s.rangeRow}>
             {[1, 2, 3, 5].map((mi) => (
-              <Pressable
-                key={mi}
-                onPress={() => setNearbyRange(mi)}
+              <Pressable key={mi} onPress={() => setNearbyRange(mi)}
                 style={[s.rangeBtn, { borderColor: nearbyRange === mi ? c.orange : c.borderMid },
-                  nearbyRange === mi && { shadowColor: c.orangeGlow, shadowOpacity: 0.7, shadowRadius: 8 }]}
-              >
+                  nearbyRange === mi && { shadowColor: c.orangeGlow, shadowOpacity: 0.7, shadowRadius: 8 }]}>
                 <Text style={[s.rangeBtnText, { color: nearbyRange === mi ? c.orange : c.textDim }]}>{mi}mi</Text>
               </Pressable>
             ))}
           </View>
         </View>
       )}
-
-      {/* Mark safe */}
       <Pressable style={[s.safeBtn, { borderColor: c.green, shadowColor: c.greenGlow }]} onPress={onMarkSafe}>
         <Text style={[s.safeBtnText, { color: c.green }]}>I'M SAFE — CANCEL ALERT</Text>
       </Pressable>
-    </View>
-  );
-}
-
-// ─── Guardian AI ──────────────────────────────────────────────────────────────
-
-function GuardianPanel({ isActive, onPanic, onFall, onHeat }: {
-  isActive: boolean; onPanic: () => void; onFall: () => void; onHeat: () => void;
-}) {
-  const spin = useSpin(true);
-  const onlinePulse = usePulse(true, 1400);
-
-  return (
-    <View style={s.section}>
-      <View style={s.sectionHeader}>
-        <View style={s.sectionTitleRow}>
-          <Animated.Text style={[s.aiGlyphSm, { transform: [{ rotate: spin }] }]}>◎</Animated.Text>
-          <Text style={s.sectionTitle}>GUARDIAN AI</Text>
-        </View>
-        <View style={s.onlineBadge}>
-          <Animated.View style={[s.onlineDot, { opacity: onlinePulse }]} />
-          <Text style={s.onlineText}>ONLINE</Text>
-        </View>
-      </View>
-
-      {!isActive && (
-        <View style={s.demoRow}>
-          <Text style={s.demoLabel}>SIMULATE —</Text>
-          {[
-            { label: "PANIC", fn: onPanic, color: c.pink },
-            { label: "FALL",  fn: onFall,  color: c.orange },
-            { label: "HEAT",  fn: onHeat,  color: c.yellow },
-          ].map(({ label, fn, color }) => (
-            <Pressable
-              key={label}
-              onPress={fn}
-              style={[s.demoBtn, { borderColor: color, shadowColor: color }]}
-            >
-              <Text style={[s.demoBtnText, { color }]}>{label}</Text>
-            </Pressable>
-          ))}
-        </View>
-      )}
     </View>
   );
 }
@@ -514,9 +713,9 @@ function ContactsPanel() {
 
 function ActivityPanel() {
   const EVENTS = [
-    { time: "2h ago",     event: "Walking Home mode completed",     success: true  },
-    { time: "Yesterday",  event: "Check-in: Marked safe",           success: true  },
-    { time: "3 days ago", event: "Added Dr. Wilson to contacts",    success: false },
+    { time: "2h ago",     event: "Walking Home mode completed",  success: true  },
+    { time: "Yesterday",  event: "Check-in: Marked safe",        success: true  },
+    { time: "3 days ago", event: "Added Dr. Wilson to contacts", success: false },
   ];
   return (
     <View style={s.section}>
@@ -540,8 +739,12 @@ const RING_SIZE = SOS_SIZE + 90;
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: c.bg },
   scroll: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 48 },
-
   divider: { height: StyleSheet.hairlineWidth, backgroundColor: c.borderMid, marginVertical: 28 },
+
+  // Neon background
+  bgOrb: { position: "absolute", borderRadius: 999 },
+  scanLine: { position: "absolute", left: 0, right: 0, height: 1, backgroundColor: "rgba(0,212,255,0.04)" },
+  gridLine: { position: "absolute", top: 0, bottom: 0, width: StyleSheet.hairlineWidth, backgroundColor: "rgba(255,255,255,0.02)" },
 
   // AI overlay
   aiOverlay: { ...StyleSheet.absoluteFillObject, zIndex: 100, backgroundColor: "rgba(0,0,0,0.93)", alignItems: "center", justifyContent: "center" },
@@ -574,13 +777,46 @@ const s = StyleSheet.create({
   sosLabel: { fontSize: 36, fontWeight: "900", letterSpacing: 8, shadowOpacity: 1, shadowRadius: 16, shadowOffset: { width: 0, height: 0 } },
   sosSub: { color: c.textDim, fontSize: f.xs, letterSpacing: 3, marginTop: 8 },
 
-  // Biometrics
+  // Quick biometrics
   bioRow: { flexDirection: "row" },
   bioCell: { flex: 1, alignItems: "center", paddingVertical: 8 },
   bioCellBorder: { borderRightWidth: StyleSheet.hairlineWidth, borderRightColor: c.borderMid },
   bioValue: { fontSize: f.xl, fontWeight: "700", letterSpacing: 1, shadowOpacity: 1, shadowRadius: 8, shadowOffset: { width: 0, height: 0 } },
   bioUnit: { fontSize: f.xs, fontWeight: "400" },
   bioLabel: { color: c.textDim, fontSize: 9, letterSpacing: 2.5, marginTop: 5, fontWeight: "600" },
+  bioOff: { color: c.textDim, fontSize: 8, letterSpacing: 1, marginTop: 2 },
+
+  // EQ bars
+  eqWrap: { flexDirection: "row", alignItems: "flex-end", gap: 3, height: 28, marginVertical: 10 },
+  eqBar: { width: 3, height: 28, borderRadius: 2 },
+
+  // Heartbeat line
+  hbWrap: { flexDirection: "row", alignItems: "center", gap: 2, height: 28, marginVertical: 10 },
+  hbBar: { width: 4, borderRadius: 2 },
+
+  // Guardian AI
+  guardianSub: { color: c.textDim, fontSize: f.xs, letterSpacing: 1, marginTop: 2 },
+  sensorGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
+  sensorCard: { width: "47%", borderWidth: 1, borderRadius: 10, padding: 14, gap: 4, backgroundColor: "rgba(255,255,255,0.02)" },
+  sensorCardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 6 },
+  sensorIconRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+  sensorIcon: { fontSize: 14 },
+  sensorLabel: { fontSize: 9, letterSpacing: 1.5, fontWeight: "700" },
+  togglePill: { borderWidth: 1, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
+  toggleText: { fontSize: 9, fontWeight: "800", letterSpacing: 1.5 },
+  sensorValueRow: { flexDirection: "row", alignItems: "baseline", gap: 3 },
+  sensorValue: { fontSize: f.xl, fontWeight: "700", letterSpacing: 0.5 },
+  sensorUnit: { fontSize: f.xs, fontWeight: "400" },
+  sensorStatus: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 4 },
+  statusPip: { width: 5, height: 5, borderRadius: 3 },
+  statusPipLabel: { fontSize: 9, fontWeight: "700", letterSpacing: 1.5 },
+
+  // Demo
+  demoWrap: { paddingTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.borderMid, gap: 12 },
+  demoHeading: { color: c.textDim, fontSize: f.xs, letterSpacing: 3 },
+  demoRow: { flexDirection: "row", gap: 8 },
+  demoBtn: { flex: 1, paddingVertical: 10, borderRadius: 4, borderWidth: 1, alignItems: "center", shadowOpacity: 0.4, shadowRadius: 8, shadowOffset: { width: 0, height: 0 } },
+  demoBtnText: { fontSize: 9, fontWeight: "700", letterSpacing: 1 },
 
   // Alert
   alertSection: { gap: 20 },
@@ -593,7 +829,7 @@ const s = StyleSheet.create({
   rangeWrap: { gap: 10 },
   rangeLabel: { color: c.textDim, fontSize: f.xs, letterSpacing: 2 },
   rangeRow: { flexDirection: "row", gap: 8 },
-  rangeBtn: { flex: 1, paddingVertical: 10, borderRadius: 4, borderWidth: 1, alignItems: "center", shadowOpacity: 0, shadowRadius: 0, shadowOffset: { width: 0, height: 0 } },
+  rangeBtn: { flex: 1, paddingVertical: 10, borderRadius: 4, borderWidth: 1, alignItems: "center" },
   rangeBtnText: { fontSize: f.xs, fontWeight: "700" },
   safeBtn: { borderWidth: 1, borderRadius: 4, paddingVertical: 18, alignItems: "center", shadowOpacity: 0.5, shadowRadius: 16, shadowOffset: { width: 0, height: 0 } },
   safeBtnText: { fontSize: f.md, fontWeight: "800", letterSpacing: 3 },
@@ -610,12 +846,6 @@ const s = StyleSheet.create({
   onlineBadge: { flexDirection: "row", alignItems: "center", gap: 6 },
   onlineDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: c.green, shadowColor: c.greenGlow, shadowOpacity: 1, shadowRadius: 6 },
   onlineText: { color: c.green, fontSize: f.xs, fontWeight: "700", letterSpacing: 1.5 },
-
-  // Demo
-  demoRow: { flexDirection: "row", alignItems: "center", gap: 10 },
-  demoLabel: { color: c.textDim, fontSize: f.xs, letterSpacing: 1.5 },
-  demoBtn: { paddingHorizontal: 16, paddingVertical: 9, borderRadius: 4, borderWidth: 1, shadowOpacity: 0.5, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } },
-  demoBtnText: { fontSize: f.xs, fontWeight: "700", letterSpacing: 1 },
 
   // Contacts
   contactRow: { flexDirection: "row", alignItems: "center", gap: 16, paddingVertical: 14 },
