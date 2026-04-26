@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import {
   Animated,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -210,7 +211,7 @@ export default function HomeScreen() {
       <SafeAreaView style={[s.screen, { backgroundColor: theme.bg }]} edges={["top", "bottom"]}>
 
         <NeonBackground dangerLevel={dangerLevel} />
-        <FirefliesBackground />
+        <PlexusBackground />
         {aiAnalyzing && <AIOverlay message={alertMessage} spin={analyzeSpin} />}
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
@@ -411,6 +412,140 @@ function FirefliesBackground() {
       {FIREFLY_DATA.map((f, i) => <Firefly key={i} {...f} />)}
     </View>
   );
+}
+
+// ─── Plexus Network Background ────────────────────────────────────────────────
+
+function PlexusCanvas() {
+  const th = useTheme();
+  const canvasRef = useRef<any>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const setSize = () => {
+      canvas.width  = canvas.offsetWidth  || (typeof window !== "undefined" ? window.innerWidth  : 390);
+      canvas.height = canvas.offsetHeight || (typeof window !== "undefined" ? window.innerHeight : 844);
+    };
+    setSize();
+    if (typeof window !== "undefined") window.addEventListener("resize", setSize);
+
+    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+    if (!ctx) return;
+
+    const NODE_COUNT = 55;
+    const MAX_DIST   = 140;
+    const SPEED      = 0.35;
+
+    type Node = { x: number; y: number; vx: number; vy: number; r: number; pulse: number; pDir: number };
+
+    const nodes: Node[] = Array.from({ length: NODE_COUNT }, () => ({
+      x:     Math.random() * canvas.width,
+      y:     Math.random() * canvas.height,
+      vx:    (Math.random() - 0.5) * SPEED,
+      vy:    (Math.random() - 0.5) * SPEED,
+      r:     Math.random() * 1.8 + 1.5,
+      pulse: Math.random(),
+      pDir:  Math.random() > 0.5 ? 1 : -1,
+    }));
+
+    const isDark = th.isDark;
+    const lineColor   = isDark ? "0,210,195"  : "0,130,150";
+    const dotColor    = isDark ? "80,255,220" : "0,140,160";
+    const glowColor   = isDark ? "0,220,200"  : "0,150,170";
+
+    let animId: number;
+
+    function draw() {
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      // Move nodes
+      for (const n of nodes) {
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0)  { n.x = 0;  n.vx *= -1; }
+        if (n.x > W)  { n.x = W;  n.vx *= -1; }
+        if (n.y < 0)  { n.y = 0;  n.vy *= -1; }
+        if (n.y > H)  { n.y = H;  n.vy *= -1; }
+        n.pulse += n.pDir * 0.007;
+        if (n.pulse >= 1) { n.pulse = 1; n.pDir = -1; }
+        if (n.pulse <= 0) { n.pulse = 0; n.pDir =  1; }
+      }
+
+      // Draw connecting lines
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx   = nodes[i].x - nodes[j].x;
+          const dy   = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < MAX_DIST) {
+            const t     = 1 - dist / MAX_DIST;
+            const alpha = t * (isDark ? 0.55 : 0.35);
+            ctx.strokeStyle = `rgba(${lineColor},${alpha.toFixed(3)})`;
+            ctx.lineWidth   = t * 0.9;
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw nodes
+      for (const n of nodes) {
+        const bright = 0.55 + n.pulse * 0.45;
+
+        // Outer radial glow
+        const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 9);
+        grad.addColorStop(0, `rgba(${glowColor},${(0.28 + n.pulse * 0.35).toFixed(3)})`);
+        grad.addColorStop(1, `rgba(${glowColor},0)`);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r * 9, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Solid core
+        ctx.fillStyle = `rgba(${dotColor},${bright.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bright centre highlight
+        ctx.fillStyle = `rgba(220,255,250,${(n.pulse * 0.9).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r * 0.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      animId = requestAnimationFrame(draw);
+    }
+
+    animId = requestAnimationFrame(draw);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      if (typeof window !== "undefined") window.removeEventListener("resize", setSize);
+    };
+  }, [th.isDark]);
+
+  return (
+    // @ts-ignore — <canvas> is valid in Expo Web
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: "absolute", top: 0, left: 0,
+        width: "100%", height: "100%",
+        pointerEvents: "none",
+      }}
+    />
+  );
+}
+
+function PlexusBackground() {
+  if (Platform.OS !== "web") return <FirefliesBackground />;
+  return <PlexusCanvas />;
 }
 
 // ─── AI Overlay ───────────────────────────────────────────────────────────────
