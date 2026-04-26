@@ -161,7 +161,7 @@ export default function HomeScreen() {
     const next = now - lastTapTime > 3000 && tapCount === 0 ? 1 : tapCount + 1;
     setTapCount(next); setLastTapTime(now); setIsSOSActive(true); setDetectionTrigger("manual");
     if (next === 1) setAlertTimestamp(new Date().toLocaleTimeString());
-    if (next >= 9)      { setAlertLevel("authorities"); setDangerLevel(3); setAlertMessage("Emergency services and local authorities notified."); }
+    if (next >= 9)      { setAlertLevel("authorities"); setDangerLevel(3); setAlertMessage("Emergency support simulation activated. No real 911, police, SMS, or emergency service was contacted."); }
     else if (next >= 6) { setAlertLevel("nearby");      setDangerLevel(2); setAlertMessage(`Broadcasting to nearby users within ${nearbyRange} mile.`); }
     else if (next >= 3) { setAlertLevel("contacts");    setDangerLevel(1); setAlertMessage("Alerting 3 trusted contacts with your location."); }
     else { setDangerLevel(0); setAlertMessage(`Tap ${3 - next} more time${3 - next > 1 ? "s" : ""} to alert trusted contacts.`); }
@@ -958,7 +958,7 @@ function AlertSection({ tapCount, alertLevel, alertMessage, nearbyRange, setNear
       </View>
       <View style={[s.alertMsg, { borderLeftColor: alertColor }]}>
         <Text style={[s.alertMsgTitle, { color: alertColor }]}>
-          {alertLevel === "authorities" ? "EMERGENCY SERVICES NOTIFIED"
+          {alertLevel === "authorities" ? "EMERGENCY SUPPORT SIMULATION"
             : alertLevel === "nearby" ? "BROADCASTING TO NEARBY USERS"
             : "TRUSTED CONTACTS ALERTED"}
         </Text>

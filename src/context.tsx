@@ -86,7 +86,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const backup = ctcts.filter((c) => c.priority === "backup").length;
     if (level >= 1) list.push({ label: "Nearby users", count: Math.floor(Math.random() * 4) + 1 });
     if (level >= 2) list.push({ label: "Trusted contacts", count: primary + backup });
-    if (level >= 3) list.push({ label: "911 Emergency Services", count: 1 });
+    if (level >= 3) list.push({ label: "Emergency support simulation", count: 1 });
     return list;
   }
 

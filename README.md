@@ -2,69 +2,73 @@
 
 **AI-powered emergency alerts for faster help when every second matters.**
 
-SafeYork (powered by SafeSignal) bridges the gap between crisis and trusted support. In dangerous or medical emergencies, people may panic, freeze, or be unable to call for help — SafeYork detects danger automatically and alerts the right people instantly.
+SafeYork is a polished Expo React Native demo app for the CUNY AI Innovation Challenge 2026, Track: AI for Health and Public Good. It helps demonstrate one-tap safety alerts, voice/text distress analysis, AI danger classification, trusted contacts, location sharing, safety history, and privacy-first emergency workflows.
 
-**Live site:** [safeyork.vercel.app](https://safeyork.vercel.app)
+**Live demo:** [safeyork.vercel.app](https://safeyork.vercel.app)
 
----
-
-## The Problem
-
-During a medical crisis, personal attack, or moment of panic, fumbling through a phone to call 911 can cost critical seconds. Many people — especially women, elderly individuals, students, and those with health conditions — need a faster, simpler way to signal for help.
-
-## The Solution
-
-SafeYork uses AI signal analysis, biometric monitoring, and a one-tap alert system to:
-
-- Detect emergencies automatically via heart rate, motion, and voice
-- Notify trusted contacts with location, danger level, and medical info
-- Escalate alerts through 3 danger levels up to emergency services
-- Give users full control over what is shared and with whom
+> Demo Mode only: SafeYork does not call 911, police, emergency services, strangers, or send real SMS. All alerts, helper notifications, and emergency support actions are simulated.
 
 ---
 
-## Features
+## Problem Statement
+
+In emergency situations such as being followed late at night, attacked, kidnapped, or facing sudden medical conditions, people often struggle to get immediate help. Victims may be unable to communicate clearly, while others do not know their location, what is happening, or who to contact. Reaching out one by one is slow and unreliable. As a result, critical time is lost when every second matters.
+
+## Solution
+
+SafeYork is an AI-powered personal safety app demo that helps users get emergency support through one tap, voice command, or AI detection. The app classifies danger levels, simulates notifying the right people, shares location in demo mode, and creates AI-generated emergency summaries.
+
+## Target Users
+
+- Students and college campus communities
+- NYC commuters
+- Women walking alone
+- Children and young adults
+- Elderly users
+- People with medical conditions
+- General public, long term
+
+---
+
+## Core Features
 
 ### 3-Level Danger System
+
 | Level | Status | Action |
-|-------|--------|--------|
-| 1 | Caution | App checks in, prepares support options |
-| 2 | Warning | Alerts trusted contacts and nearby helpers |
-| 3 | Emergency | Alerts contacts, helpers, and emergency services |
+| ----- | ------ | ------ |
+| 1 | Caution | Ask the user if they are okay |
+| 2 | Warning | Simulate alerts to trusted contacts and opted-in nearby helpers |
+| 3 | Emergency | Simulate alerts to trusted contacts, nearby helpers, and emergency support |
 
 ### Guardian AI
-Analyzes combined signals — text responses, heart rate, motion, fall detection, and stillness — to assess risk and generate an emergency summary with recommended actions. Includes coercion risk detection.
+
+Guardian AI performs biometric anomaly detection simulation, voice/text distress analysis, coercion risk detection, emergency triage summary generation, explainable AI reasoning, and risk classification into Level 1, Level 2, or Level 3.
 
 ### Safety Modes
-- Walking Home (15 min)
-- Ride Safety (20 min)
-- Home Alone (30 min)
-- Medical Emergency (5 min)
+
+- Walking Home
+- Ride Safety
+- Home Alone
+- Medical Emergency
 - Custom Timer
 
-### Multi-Trigger Alerts
-One-tap button · Voice command · AI auto-detection · Check-in timer
+### Privacy and Consent
 
-### Trusted Contacts
-Priority levels (Primary, Backup, Campus, Caregiver) with per-contact controls for location and medical info sharing.
-
-### Privacy & Consent
-Every data-sharing feature — location, medical notes, nearby helpers — requires explicit opt-in and can be toggled off at any time.
+SafeYork is designed around minimum necessary sharing. Trusted contacts can receive detailed simulated emergency information, nearby helpers receive limited information, phone numbers stay masked, medical notes are controlled by user permission, and helper participation requires opt-in.
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| Mobile | React Native 0.81.5, Expo 54 |
+| ----- | ---------- |
+| App | React Native 0.81.5, Expo SDK 54 |
 | Navigation | Expo Router 6 |
-| Web | Static HTML / CSS / JavaScript |
 | Language | TypeScript 5.9 |
 | State | React Context API + AsyncStorage |
-| Location | Expo Location |
-| Sensors | Expo Sensors |
-| Deployment | Vercel |
+| Location | Expo Location with simulated fallback |
+| Sensors | Expo Sensors with simulated fallback |
+| Web Deploy | Expo web static export on Vercel |
 
 ---
 
@@ -72,41 +76,57 @@ Every data-sharing feature — location, medical notes, nearby helpers — requi
 
 ```
 SafeYork/
-├── app/                    # Expo Router screens
-│   ├── _layout.tsx         # Root layout + SafeYorkContext
-│   ├── home.tsx            # Dashboard
-│   ├── sos.tsx             # Emergency SOS
-│   ├── contacts.tsx        # Trusted contacts
-│   ├── guardian.tsx        # Guardian AI interface
-│   ├── safe-mode.tsx       # Safety mode selection
-│   ├── location.tsx        # Location sharing
-│   ├── profile.tsx         # Emergency profile
-│   ├── history.tsx         # Safety event log
-│   └── settings.tsx        # App settings
-├── src/                    # Services & context
-├── index.html              # Landing page
-├── project.html            # Project overview + interactive demo
-├── about.html              # About & team
-├── styles.css              # Shared styles (light/dark themes)
-└── script.js               # Navigation, theme toggle, demo logic
+├── app/                    # Expo Router routes
+│   ├── _layout.tsx         # Root layout and app provider
+│   ├── home.tsx            # Main polished dashboard
+│   ├── sos.tsx             # SOS emergency flow
+│   ├── guardian.tsx        # Guardian AI analysis
+│   ├── safe-mode.tsx       # Get Home Safe timer
+│   ├── location.tsx        # Location sharing and safe areas
+│   ├── profile.tsx         # Privacy-safe emergency profile
+│   ├── helpers.tsx         # Nearby helper opt-in
+│   ├── history.tsx         # Safety history timeline
+│   ├── demo.tsx            # Judge/demo controls
+│   └── future.tsx          # Future vision roadmap
+├── src/
+│   ├── components/         # Shared UI components
+│   ├── constants/          # Design tokens
+│   ├── data/               # Demo users, locations, roadmap data
+│   ├── models/             # TypeScript models
+│   ├── screens/            # Screen implementations
+│   ├── services/           # Alert, AI, biometric, and location services
+│   ├── context.tsx         # App state provider
+│   ├── engine.ts           # Rule-based danger classifier
+│   └── theme.ts            # Day/night app theme
+├── website-src/            # Optional reference website source, not the Vercel deploy target
+├── app.json                # Expo app config
+├── package.json            # Scripts and dependencies
+├── tsconfig.json           # TypeScript config
+└── vercel.json             # Vercel builds the Expo web app from app/ and src/
 ```
+
+Vercel deploys the Expo app with `npx expo export -p web`. The `website-src/` folder is retained only as reference source and is not used by the current deployment.
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
-- Expo CLI
+- npm
+- Expo CLI through `npx expo`
 
 ### Install
+
 ```bash
-git clone https://github.com/PhyoThihaOo32/SafeYork-.git
-cd SafeYork-
+git clone https://github.com/PhyoThihaOo32/SafeYork.git
+cd SafeYork
 npm install
 ```
 
-### Run
+### Run Locally
+
 ```bash
 # Web browser
 npm run web
@@ -118,61 +138,64 @@ npm run ios
 npm run android
 ```
 
-### Build for web
+### Build for Vercel/Web
+
 ```bash
 npm run build:web
 ```
 
 ---
 
-## Interactive Demo
+## Demo Script
 
-The project page includes a live danger level classifier — select biometric signals and click **Analyze Signals** to see how Guardian AI assesses risk in real time.
-
-The app ships with a CUNY student demo profile (contacts, NYC locations, medical notes) so you can walk through a full emergency scenario without any setup.
-
-**Demo flow:**
-1. Start Walking Home mode
-2. Timer begins — don't respond when it ends
-3. Guardian AI analyzes the situation
-4. Danger level is assigned and escalated
-5. Trusted contacts are notified (simulated)
-6. Location and emergency message are displayed
-7. Mark yourself safe to cancel
+SafeYork is an AI-powered personal safety app designed first for students and college campuses. A user can press SOS, use a voice/text trigger, or start a Get Home Safe timer when walking home or riding alone. If the user does not respond, SafeYork gives a subtle check-in reminder. If there is still no response, Guardian AI analyzes the situation, assigns a danger level, generates an emergency message, shares location in demo mode, and escalates simulated alerts to the right people. Level 1 checks on the user, Level 2 alerts trusted contacts and nearby helpers in simulation, and Level 3 simulates trusted contacts, nearby helpers, and emergency support.
 
 ---
 
 ## Public Interest Technology
 
-SafeYork was built with Public Interest Technology guidelines at its core:
+SafeYork demonstrates public-interest technology principles:
 
-- **Safety** — rapid detection and multi-channel notification
-- **Equity** — designed for vulnerable populations (students, elderly, people with health conditions)
-- **Privacy** — user-controlled data sharing with explicit consent
-- **Accountability** — full event logging and transparent AI reasoning
-- **Accessibility** — semantic HTML, ARIA labels, reduced motion support, responsive design
+- Safety and equity
+- Accessibility
+- Privacy and consent
+- Accountability
+- Community responsibility
+
+---
+
+## Challenges
+
+- Biometric accuracy without wearables
+- False positives
+- Panic-state usability
+- AI/API fallback reliability
+- Privacy and helper safety
+
+## What We Learned
+
+Designing for crisis is different from designing for convenience. AI should support decision-making, not create confusion. Community safety requires consent, privacy, and clear accountability. A working prototype is different from a trustworthy production emergency system.
+
+## Next Steps
+
+- Validated rPPG or wearable-based biometric detection
+- Real notification APIs with explicit user consent
+- Firebase helper network
+- Wearable safety button
+- Campus safety partnerships
+- Smart home APIs
+- NYC public infrastructure exploration
 
 ---
 
 ## Team
 
 | Name | Role |
-|------|------|
+| ---- | ---- |
 | Kyawt Kyawt Htun | UI / Front-End |
 | Zin Min Wai | Signal Sender / AI NLP |
 | Phyo Thiha Oo | Location / Biometrics |
 | Thet Oo Maung | Contacts / Backend |
-
----
-
-## Future Plans
-
-- Real push notifications (SMS + email)
-- Apple Watch integration
-- Real biometric detection via wearables
-- Campus safety dashboard
-- Multi-language support
-- Smart home and public emergency system partnerships
 
 ---
 
