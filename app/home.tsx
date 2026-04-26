@@ -556,9 +556,9 @@ function PlexusCanvas({ dangerLevel }: { dangerLevel: DangerLevel }) {
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < MAX_DIST) {
             const t = 1 - dist / MAX_DIST;
-            const alpha = t * (isDark ? 0.46 : 0.28);
+            const alpha = t * (isDark ? 0.18 : 0.11);
             ctx.strokeStyle = `rgba(${lineColor},${alpha.toFixed(3)})`;
-            ctx.lineWidth = t * 0.95;
+            ctx.lineWidth = t * 0.7;
             ctx.beginPath();
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
@@ -568,23 +568,18 @@ function PlexusCanvas({ dangerLevel }: { dangerLevel: DangerLevel }) {
       }
 
       for (const n of nodes) {
-        const bright = 0.48 + n.pulse * 0.42;
-        const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 10);
-        grad.addColorStop(0, `rgba(${glowColor},${(0.22 + n.pulse * 0.34).toFixed(3)})`);
+        const bright = 0.22 + n.pulse * 0.22;
+        const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 8);
+        grad.addColorStop(0, `rgba(${glowColor},${(0.10 + n.pulse * 0.14).toFixed(3)})`);
         grad.addColorStop(1, `rgba(${glowColor},0)`);
         ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r * 10, 0, Math.PI * 2);
+        ctx.arc(n.x, n.y, n.r * 8, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.fillStyle = `rgba(${dotColor},${bright.toFixed(3)})`;
         ctx.beginPath();
         ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = `rgba(230,255,250,${(n.pulse * 0.75).toFixed(3)})`;
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r * 0.42, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -607,7 +602,7 @@ function PlexusCanvas({ dangerLevel }: { dangerLevel: DangerLevel }) {
         position: "absolute", top: 0, left: 0,
         width: "100%", height: "100%",
         pointerEvents: "none",
-        opacity: th.isDark ? 0.82 : 0.58,
+        opacity: th.isDark ? 0.55 : 0.35,
       }}
     />
   );
@@ -1158,22 +1153,121 @@ const AREA_DATA: {
   },
 ];
 
+const RADAR_SIZE = 188;
+
+const RADAR_INCIDENTS = [
+  { angle: 38,  dist: 0.34, color: "pink"   as RiskLevel },
+  { angle: 158, dist: 0.52, color: "HIGH"   as RiskLevel },
+  { angle: 265, dist: 0.42, color: "MODERATE" as RiskLevel },
+  { angle: 82,  dist: 0.68, color: "LOW"    as RiskLevel },
+];
+
+function RadarView({ color, glow }: { color: string; glow: string }) {
+  const th = useTheme();
+  const ring1 = usePing(true, 0);
+  const ring2 = usePing(true, 1200);
+  const ring3 = usePing(true, 2400);
+
+  const sweep = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(sweep, { toValue: 1, duration: 4000, useNativeDriver: true })
+    ).start();
+    return () => sweep.stopAnimation();
+  }, []);
+  const sweepRot = sweep.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
+
+  const half = RADAR_SIZE / 2;
+  const pingSize = RADAR_SIZE * 0.4;
+
+  const dotColor = (r: string) =>
+    r === "pink" || r === "CRITICAL" ? th.pink
+    : r === "HIGH" ? th.orange
+    : r === "MODERATE" ? th.yellow
+    : th.green;
+
+  return (
+    <View style={[s.radarWrap, { alignSelf: "center" }]}>
+      {/* Background disc */}
+      <View style={[s.radarDisc, { borderColor: `${color}18`, backgroundColor: `${color}05` }]} />
+
+      {/* Concentric rings */}
+      {[0.33, 0.66, 1].map((sc, i) => {
+        const sz = RADAR_SIZE * sc;
+        return (
+          <View key={i} style={[s.radarRing, {
+            width: sz, height: sz, borderRadius: sz / 2,
+            borderColor: `${color}14`,
+            top: half - sz / 2, left: half - sz / 2,
+          }]} />
+        );
+      })}
+
+      {/* Cross hairs */}
+      <View style={[s.radarCrossH, { backgroundColor: `${color}10` }]} />
+      <View style={[s.radarCrossV, { backgroundColor: `${color}10` }]} />
+
+      {/* Rotating sweep arm */}
+      <Animated.View style={[s.radarSweepContainer, { transform: [{ rotate: sweepRot }] }]}>
+        <View style={[s.radarArm, { backgroundColor: color }]} />
+        {/* fade tail */}
+        <View style={[s.radarArmTail, { backgroundColor: color }]} />
+      </Animated.View>
+
+      {/* Expanding ping rings */}
+      {[ring1, ring2, ring3].map((r, i) => (
+        <Animated.View key={i} pointerEvents="none" style={[
+          s.radarPing,
+          {
+            width: pingSize, height: pingSize,
+            borderRadius: pingSize / 2,
+            top: half - pingSize / 2, left: half - pingSize / 2,
+            borderColor: color,
+            transform: [{ scale: r.scale }],
+            opacity: r.opacity,
+          },
+        ]} />
+      ))}
+
+      {/* Incident markers */}
+      {RADAR_INCIDENTS.map((dot, i) => {
+        const rad = (dot.angle * Math.PI) / 180;
+        const x = half + Math.cos(rad) * (half * dot.dist) - 5;
+        const y = half + Math.sin(rad) * (half * dot.dist) - 5;
+        const dc = dotColor(dot.color);
+        return (
+          <View key={i} style={[s.radarIncident, {
+            left: x, top: y,
+            backgroundColor: dc,
+            shadowColor: dc,
+          }]} />
+        );
+      })}
+
+      {/* Centre location pin */}
+      <View style={[s.radarCenter, { backgroundColor: color, shadowColor: glow }]} />
+
+      {/* Live label */}
+      <View style={s.radarLiveWrap}>
+        <View style={[s.radarLiveDot, { backgroundColor: th.green }]} />
+        <Text style={[s.radarLiveText, { color: th.textDim }]}>LIVE</Text>
+      </View>
+    </View>
+  );
+}
+
 function AreaSafetyPanel() {
   const th = useTheme();
   const area = AREA_DATA[0];
-  const scanPulse = usePulse(true, 2000);
-  const warnPulse = usePulse(area.risk === "CRITICAL" || area.risk === "HIGH", 900);
+  const warnPulse = usePulse(area.risk === "CRITICAL" || area.risk === "HIGH", 1100);
 
   const riskColor = (r: RiskLevel) =>
     r === "CRITICAL" ? th.pink : r === "HIGH" ? th.orange : r === "MODERATE" ? th.yellow : th.green;
-  const riskGlow  = (r: RiskLevel) =>
+  const riskGlow = (r: RiskLevel) =>
     r === "CRITICAL" ? th.pinkGlow : r === "HIGH" ? th.orangeGlow : r === "MODERATE" ? th.yellowGlow : th.greenGlow;
 
   const areaColor = riskColor(area.risk);
   const areaGlow  = riskGlow(area.risk);
-
-  // Score bar — score is 0-100 where 0=safest, 100=most dangerous
-  const barWidth = `${area.score}%` as const;
 
   return (
     <View style={s.section}>
@@ -1181,83 +1275,41 @@ function AreaSafetyPanel() {
       {/* Header */}
       <View style={s.sectionHeader}>
         <View style={s.sectionTitleRow}>
-          <Animated.Text style={[s.aiGlyphSm, { color: areaColor, shadowColor: areaGlow, opacity: scanPulse }]}>◎</Animated.Text>
+          <Text style={[s.aiGlyphSm, { color: areaColor }]}>◎</Text>
           <View>
             <Text style={[s.sectionTitle, { color: th.textMuted }]}>AREA MONITORING</Text>
             <Text style={[s.guardianSub, { color: th.textDim }]}>{area.neighborhood}, {area.borough}</Text>
           </View>
         </View>
-        {/* Risk badge */}
         <Animated.View style={[
           s.riskBadge,
-          { borderColor: areaColor, backgroundColor: `${areaColor}15` },
+          { borderColor: areaColor, backgroundColor: `${areaColor}12` },
           (area.risk === "HIGH" || area.risk === "CRITICAL") && { opacity: warnPulse },
         ]}>
-          <Text style={[s.riskBadgeText, { color: areaColor, shadowColor: areaGlow }]}>{area.risk} RISK</Text>
+          <Text style={[s.riskBadgeText, { color: areaColor }]}>{area.risk} RISK</Text>
         </Animated.View>
       </View>
 
-      {/* Safety score bar */}
-      <View style={s.scoreWrap}>
-        <View style={s.scoreRow}>
-          <Text style={[s.scoreLabel, { color: th.textDim }]}>SAFETY SCORE</Text>
-          <Text style={[s.scoreValue, { color: areaColor }]}>{area.score}<Text style={s.scoreMax}>/100</Text></Text>
+      {/* Radar */}
+      <RadarView color={areaColor} glow={areaGlow} />
+
+      {/* Safety index bar */}
+      <View style={{ gap: 8 }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" }}>
+          <Text style={[s.scoreLabel, { color: th.textDim }]}>SAFETY INDEX</Text>
+          <Text style={[s.scoreValue, { color: areaColor }]}>
+            {area.score}<Text style={[s.scoreMax, { color: th.textDim }]}> / 100</Text>
+          </Text>
         </View>
         <View style={[s.scoreTrack, { backgroundColor: th.borderMid }]}>
-          <View style={[s.scoreFill, { width: barWidth, backgroundColor: areaColor, shadowColor: areaGlow }]} />
-        </View>
-        <View style={s.scoreFooter}>
-          <Text style={[s.scoreFooterText, { color: th.green }]}>SAFE</Text>
-          <Text style={[s.scoreFooterText, { color: th.textDim }]}>Crime Index: {area.crimeIndex}</Text>
-          <Text style={[s.scoreFooterText, { color: th.pink }]}>DANGER</Text>
+          <View style={[s.scoreFill, { width: `${area.score}%`, backgroundColor: areaColor, shadowColor: areaGlow }]} />
         </View>
       </View>
 
-      {/* Warning banner */}
-      {area.warning && (
-        <View style={[s.warningBanner, { borderColor: areaColor, backgroundColor: `${areaColor}10`, borderLeftColor: areaColor }]}>
-          <Text style={[s.warningIcon, { color: areaColor }]}>⚠</Text>
-          <Text style={[s.warningText, { color: th.textMuted }]}>{area.warning}</Text>
-        </View>
-      )}
-
-      {/* Stats row */}
-      <View style={[s.statsRow, { borderColor: th.borderMid }]}>
-        {[
-          { label: "INCIDENTS",    value: `${area.incidents}`, sub: "last 24h",  color: areaColor },
-          { label: "CRIME INDEX",  value: `${area.crimeIndex}`, sub: "out of 100", color: areaColor },
-          { label: "NEARBY USERS", value: "7",  sub: "SafeYork active", color: th.blue },
-        ].map((stat, i) => (
-          <View key={stat.label} style={[s.statCell, i < 2 && { borderRightWidth: StyleSheet.hairlineWidth, borderRightColor: th.borderMid }]}>
-            <Text style={[s.statValue, { color: stat.color }]}>{stat.value}</Text>
-            <Text style={[s.statLabel, { color: th.textDim }]}>{stat.label}</Text>
-            <Text style={[s.statSub, { color: th.textDim }]}>{stat.sub}</Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Recent crimes */}
-      <View style={s.crimesWrap}>
-        <Text style={[s.crimesTitle, { color: th.textDim }]}>RECENT INCIDENTS NEARBY</Text>
-        {area.recentCrimes.map((crime, i) => {
-          const cc = riskColor(crime.severity);
-          return (
-            <View key={i} style={[
-              s.crimeRow,
-              i < area.recentCrimes.length - 1 && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: th.borderMid },
-            ]}>
-              <View style={[s.crimeDot, { backgroundColor: cc, shadowColor: riskGlow(crime.severity) }]} />
-              <View style={{ flex: 1 }}>
-                <Text style={[s.crimeType, { color: th.text }]}>{crime.type}</Text>
-                <Text style={[s.crimeMeta, { color: th.textDim }]}>{crime.time} · {crime.distance} away</Text>
-              </View>
-              <View style={[s.crimePill, { borderColor: `${cc}60`, backgroundColor: `${cc}12` }]}>
-                <Text style={[s.crimePillText, { color: cc }]}>{crime.severity}</Text>
-              </View>
-            </View>
-          );
-        })}
-      </View>
+      {/* One-line summary */}
+      <Text style={[s.areaSummary, { color: th.textDim }]}>
+        {area.incidents} incidents in the last 24h · closest 0.3 mi · monitoring live
+      </Text>
 
     </View>
   );
@@ -1420,6 +1472,23 @@ const s = StyleSheet.create({
   crimeMeta:      { fontSize: f.xs, letterSpacing: 0.5, marginTop: 2 },
   crimePill:      { borderWidth: 1, borderRadius: 4, paddingHorizontal: 8, paddingVertical: 3 },
   crimePillText:  { fontSize: 9, fontWeight: "800", letterSpacing: 1 },
+
+  // Radar
+  radarWrap:          { width: RADAR_SIZE, height: RADAR_SIZE },
+  radarDisc:          { ...StyleSheet.absoluteFillObject, borderRadius: RADAR_SIZE / 2, borderWidth: 1 },
+  radarRing:          { position: "absolute", borderWidth: StyleSheet.hairlineWidth },
+  radarCrossH:        { position: "absolute", top: RADAR_SIZE / 2 - 0.5, left: 0, right: 0, height: StyleSheet.hairlineWidth },
+  radarCrossV:        { position: "absolute", left: RADAR_SIZE / 2 - 0.5, top: 0, bottom: 0, width: StyleSheet.hairlineWidth },
+  radarSweepContainer:{ position: "absolute", top: 0, left: 0, width: RADAR_SIZE, height: RADAR_SIZE },
+  radarArm:           { position: "absolute", top: RADAR_SIZE / 2 - 0.5, left: RADAR_SIZE / 2, width: RADAR_SIZE / 2 - 10, height: 1, opacity: 0.7 },
+  radarArmTail:       { position: "absolute", top: RADAR_SIZE / 2 - 0.5, left: RADAR_SIZE / 2 - 24, width: 24, height: 1, opacity: 0.2 },
+  radarPing:          { position: "absolute", borderWidth: 1 },
+  radarIncident:      { position: "absolute", width: 10, height: 10, borderRadius: 5, shadowOpacity: 1, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } },
+  radarCenter:        { position: "absolute", top: RADAR_SIZE / 2 - 5, left: RADAR_SIZE / 2 - 5, width: 10, height: 10, borderRadius: 5, shadowOpacity: 1, shadowRadius: 10, shadowOffset: { width: 0, height: 0 } },
+  radarLiveWrap:      { position: "absolute", bottom: 8, right: 12, flexDirection: "row", alignItems: "center", gap: 4 },
+  radarLiveDot:       { width: 5, height: 5, borderRadius: 3 },
+  radarLiveText:      { fontSize: 8, letterSpacing: 2, fontWeight: "700" },
+  areaSummary:        { fontSize: f.xs, letterSpacing: 0.4, lineHeight: 18 },
 
   // Voice SOS
   voiceWrap:    { marginTop: 20 },
