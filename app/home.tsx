@@ -1293,16 +1293,36 @@ function AreaSafetyPanel() {
       {/* Radar */}
       <RadarView color={areaColor} glow={areaGlow} />
 
-      {/* Safety index bar */}
-      <View style={{ gap: 8 }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" }}>
-          <Text style={[s.scoreLabel, { color: th.textDim }]}>SAFETY INDEX</Text>
-          <Text style={[s.scoreValue, { color: areaColor }]}>
-            {area.score}<Text style={[s.scoreMax, { color: th.textDim }]}> / 100</Text>
-          </Text>
+      {/* Safety index + Crime rate bars */}
+      <View style={{ gap: 14 }}>
+        {/* Safety Index */}
+        <View style={{ gap: 6 }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" }}>
+            <Text style={[s.scoreLabel, { color: th.textDim }]}>SAFETY INDEX</Text>
+            <Text style={[s.scoreValue, { color: areaColor }]}>
+              {area.score}<Text style={[s.scoreMax, { color: th.textDim }]}> / 100</Text>
+            </Text>
+          </View>
+          <View style={[s.scoreTrack, { backgroundColor: th.borderMid }]}>
+            <View style={[s.scoreFill, { width: `${area.score}%`, backgroundColor: areaColor, shadowColor: areaGlow }]} />
+          </View>
         </View>
-        <View style={[s.scoreTrack, { backgroundColor: th.borderMid }]}>
-          <View style={[s.scoreFill, { width: `${area.score}%`, backgroundColor: areaColor, shadowColor: areaGlow }]} />
+
+        {/* Crime Rate */}
+        <View style={{ gap: 6 }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" }}>
+            <Text style={[s.scoreLabel, { color: th.textDim }]}>CRIME RATE</Text>
+            <Text style={[s.scoreValue, { color: area.crimeIndex >= 70 ? th.orange : area.crimeIndex >= 50 ? th.yellow : th.green }]}>
+              {area.crimeIndex}<Text style={[s.scoreMax, { color: th.textDim }]}> / 100</Text>
+            </Text>
+          </View>
+          <View style={[s.scoreTrack, { backgroundColor: th.borderMid }]}>
+            <View style={[s.scoreFill, {
+              width: `${area.crimeIndex}%`,
+              backgroundColor: area.crimeIndex >= 70 ? th.orange : area.crimeIndex >= 50 ? th.yellow : th.green,
+              shadowColor: area.crimeIndex >= 70 ? th.orangeGlow : area.crimeIndex >= 50 ? th.yellowGlow : th.greenGlow,
+            }]} />
+          </View>
         </View>
       </View>
 
