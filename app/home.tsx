@@ -211,7 +211,7 @@ export default function HomeScreen() {
       <SafeAreaView style={[s.screen, { backgroundColor: theme.bg }]} edges={["top", "bottom"]}>
 
         <NeonBackground dangerLevel={dangerLevel} />
-        <PlexusBackground />
+        <PlexusBackground dangerLevel={dangerLevel} />
         {aiAnalyzing && <AIOverlay message={alertMessage} spin={analyzeSpin} />}
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
@@ -312,111 +312,180 @@ function NeonBackground({ dangerLevel }: { dangerLevel: DangerLevel }) {
   );
 }
 
-// ─── Fireflies ────────────────────────────────────────────────────────────────
+// ─── Plexus Network Background ────────────────────────────────────────────────
 
-type FireflyDatum = { x: number; y: number; size: number; color: string; dur: number; dx: number; dy: number; blink: number };
+type NativePlexusPointDatum = {
+  x: number;
+  y: number;
+  size: number;
+  dx: number;
+  dy: number;
+  delay: number;
+  duration: number;
+  emphasis?: boolean;
+};
 
-const FIREFLY_DATA: FireflyDatum[] = [
-  { x: 35,  y: 80,  size: 7,  color: "#C8FF00", dur: 5000, dx: 22,  dy: -15, blink: 0    },
-  { x: 180, y: 55,  size: 9,  color: "#FFE600", dur: 6200, dx: -18, dy: 25,  blink: 400  },
-  { x: 300, y: 110, size: 6,  color: "#39FF14", dur: 4800, dx: 15,  dy: -20, blink: 800  },
-  { x: 70,  y: 210, size: 8,  color: "#FFE600", dur: 5500, dx: -25, dy: 18,  blink: 200  },
-  { x: 245, y: 190, size: 10, color: "#C8FF00", dur: 7000, dx: 20,  dy: -22, blink: 600  },
-  { x: 350, y: 260, size: 6,  color: "#39FF14", dur: 4500, dx: -12, dy: 15,  blink: 1000 },
-  { x: 25,  y: 370, size: 9,  color: "#FFE600", dur: 6000, dx: 28,  dy: -12, blink: 300  },
-  { x: 150, y: 340, size: 7,  color: "#C8FF00", dur: 5200, dx: -16, dy: 20,  blink: 700  },
-  { x: 315, y: 400, size: 8,  color: "#FFE600", dur: 4900, dx: 14,  dy: -25, blink: 500  },
-  { x: 200, y: 470, size: 9,  color: "#39FF14", dur: 5800, dx: -22, dy: 16,  blink: 100  },
-  { x: 55,  y: 540, size: 7,  color: "#FFE600", dur: 6300, dx: 18,  dy: -18, blink: 900  },
-  { x: 275, y: 525, size: 9,  color: "#C8FF00", dur: 5100, dx: -14, dy: 22,  blink: 350  },
-  { x: 365, y: 580, size: 6,  color: "#FFE600", dur: 4600, dx: 20,  dy: -15, blink: 550  },
-  { x: 130, y: 640, size: 8,  color: "#39FF14", dur: 5700, dx: -24, dy: 14,  blink: 1100 },
-  { x: 50,  y: 720, size: 9,  color: "#C8FF00", dur: 6100, dx: 16,  dy: -20, blink: 250  },
-  { x: 225, y: 700, size: 7,  color: "#FFE600", dur: 4700, dx: -18, dy: 24,  blink: 650  },
-  { x: 335, y: 750, size: 8,  color: "#39FF14", dur: 5300, dx: 22,  dy: -16, blink: 950  },
+type NativePlexusLineDatum = {
+  left: number;
+  top: number;
+  width: number;
+  rotate: string;
+  delay: number;
+  duration: number;
+  strong?: boolean;
+};
+
+const NATIVE_PLEXUS_POINTS: NativePlexusPointDatum[] = [
+  { x: 24,  y: 88,  size: 4, dx: 12,  dy: -8,  delay: 0,    duration: 4300 },
+  { x: 92,  y: 118, size: 5, dx: -10, dy: 12,  delay: 260,  duration: 5200, emphasis: true },
+  { x: 168, y: 82,  size: 4, dx: 14,  dy: 8,   delay: 520,  duration: 4600 },
+  { x: 236, y: 136, size: 5, dx: -12, dy: -10, delay: 780,  duration: 5700 },
+  { x: 326, y: 104, size: 4, dx: 9,   dy: 14,  delay: 1040, duration: 4900 },
+  { x: 54,  y: 236, size: 5, dx: 16,  dy: -12, delay: 160,  duration: 5400, emphasis: true },
+  { x: 132, y: 272, size: 4, dx: -12, dy: 10,  delay: 620,  duration: 5000 },
+  { x: 218, y: 232, size: 6, dx: 10,  dy: 16,  delay: 1080, duration: 6000, emphasis: true },
+  { x: 304, y: 286, size: 4, dx: -16, dy: -10, delay: 360,  duration: 4700 },
+  { x: 88,  y: 430, size: 4, dx: 13,  dy: 14,  delay: 900,  duration: 5200 },
+  { x: 178, y: 386, size: 5, dx: -10, dy: -13, delay: 420,  duration: 5600, emphasis: true },
+  { x: 270, y: 448, size: 4, dx: 14,  dy: -8,  delay: 720,  duration: 5100 },
+  { x: 338, y: 400, size: 5, dx: -9,  dy: 12,  delay: 1180, duration: 5900 },
+  { x: 36,  y: 606, size: 4, dx: 12,  dy: -10, delay: 240,  duration: 5000 },
+  { x: 116, y: 652, size: 6, dx: -14, dy: 9,   delay: 640,  duration: 6100, emphasis: true },
+  { x: 212, y: 596, size: 4, dx: 15,  dy: 12,  delay: 980,  duration: 5300 },
+  { x: 304, y: 660, size: 5, dx: -12, dy: -14, delay: 1280, duration: 5800 },
 ];
 
-function Firefly({ x, y, size, color, dur, dx, dy, blink }: FireflyDatum) {
-  const tx = useRef(new Animated.Value(0)).current;
-  const ty = useRef(new Animated.Value(0)).current;
-  const brightness = useRef(new Animated.Value(0.25)).current;
+const NATIVE_PLEXUS_LINES: NativePlexusLineDatum[] = [
+  { left: 28,  top: 98,  width: 72,  rotate: "22deg",  delay: 0,    duration: 3600, strong: true },
+  { left: 96,  top: 112, width: 78,  rotate: "-18deg", delay: 220,  duration: 4300 },
+  { left: 168, top: 96,  width: 92,  rotate: "32deg",  delay: 440,  duration: 3900 },
+  { left: 232, top: 126, width: 98,  rotate: "-14deg", delay: 660,  duration: 4700 },
+  { left: 58,  top: 242, width: 82,  rotate: "24deg",  delay: 180,  duration: 4500, strong: true },
+  { left: 128, top: 260, width: 98,  rotate: "-24deg", delay: 380,  duration: 5200 },
+  { left: 216, top: 236, width: 94,  rotate: "30deg",  delay: 760,  duration: 4100 },
+  { left: 84,  top: 424, width: 96,  rotate: "-24deg", delay: 260,  duration: 4800 },
+  { left: 174, top: 394, width: 104, rotate: "34deg",  delay: 620,  duration: 5400, strong: true },
+  { left: 268, top: 438, width: 72,  rotate: "-34deg", delay: 840,  duration: 4600 },
+  { left: 38,  top: 612, width: 88,  rotate: "28deg",  delay: 120,  duration: 4200 },
+  { left: 116, top: 642, width: 108, rotate: "-28deg", delay: 520,  duration: 5700, strong: true },
+  { left: 210, top: 604, width: 112, rotate: "32deg",  delay: 960,  duration: 5000 },
+];
+
+function NativePlexusPoint({ point, color, glowColor }: { point: NativePlexusPointDatum; color: string; glowColor: string }) {
+  const drift = useRef(new Animated.Value(0)).current;
+  const pulse = useRef(new Animated.Value(point.emphasis ? 0.65 : 0.35)).current;
 
   useEffect(() => {
-    Animated.loop(Animated.sequence([
-      Animated.timing(tx, { toValue: dx,        duration: dur,       useNativeDriver: true }),
-      Animated.timing(tx, { toValue: -dx * 0.6, duration: dur * 0.8, useNativeDriver: true }),
-      Animated.timing(tx, { toValue: dx * 0.3,  duration: dur * 0.7, useNativeDriver: true }),
-      Animated.timing(tx, { toValue: 0,          duration: dur * 0.5, useNativeDriver: true }),
-    ])).start();
+    const move = Animated.loop(Animated.sequence([
+      Animated.delay(point.delay),
+      Animated.timing(drift, { toValue: 1, duration: point.duration, useNativeDriver: true }),
+      Animated.timing(drift, { toValue: 0, duration: point.duration * 0.85, useNativeDriver: true }),
+    ]));
+    const blink = Animated.loop(Animated.sequence([
+      Animated.delay(point.delay / 2),
+      Animated.timing(pulse, { toValue: 1, duration: point.duration * 0.28, useNativeDriver: true }),
+      Animated.timing(pulse, { toValue: point.emphasis ? 0.5 : 0.22, duration: point.duration * 0.35, useNativeDriver: true }),
+    ]));
+    move.start();
+    blink.start();
+    return () => {
+      move.stop();
+      blink.stop();
+    };
+  }, [drift, point.delay, point.duration, point.emphasis, pulse]);
 
-    Animated.loop(Animated.sequence([
-      Animated.timing(ty, { toValue: dy,        duration: dur * 1.1, useNativeDriver: true }),
-      Animated.timing(ty, { toValue: -dy * 0.5, duration: dur * 0.9, useNativeDriver: true }),
-      Animated.timing(ty, { toValue: dy * 0.3,  duration: dur * 0.7, useNativeDriver: true }),
-      Animated.timing(ty, { toValue: 0,          duration: dur * 0.4, useNativeDriver: true }),
-    ])).start();
+  const translateX = drift.interpolate({ inputRange: [0, 1], outputRange: [-point.dx, point.dx] });
+  const translateY = drift.interpolate({ inputRange: [0, 1], outputRange: [-point.dy, point.dy] });
+  const halo = point.size * (point.emphasis ? 9 : 7);
 
-    // Always visible — dim between pulses, bright when blinking
-    Animated.loop(Animated.sequence([
-      Animated.delay(blink),
-      Animated.timing(brightness, { toValue: 1,    duration: 300, useNativeDriver: true }),
-      Animated.timing(brightness, { toValue: 0.65, duration: 250, useNativeDriver: true }),
-      Animated.timing(brightness, { toValue: 0.95, duration: 200, useNativeDriver: true }),
-      Animated.timing(brightness, { toValue: 0.22, duration: 500, useNativeDriver: true }),
-      Animated.delay(600 + (blink % 700)),
-    ])).start();
-
-    return () => {};
-  }, []);
-
-  const halo = size * 5;
   return (
     <Animated.View
       pointerEvents="none"
-      style={{
-        position: "absolute",
-        left: x - halo / 2,
-        top:  y - halo / 2,
-        width: halo, height: halo,
-        alignItems: "center", justifyContent: "center",
-        opacity: brightness,
-        transform: [{ translateX: tx }, { translateY: ty }],
-      }}
+      style={[
+        s.plexusNativeNode,
+        {
+          left: point.x - halo / 2,
+          top: point.y - halo / 2,
+          width: halo,
+          height: halo,
+          opacity: pulse,
+          transform: [{ translateX }, { translateY }],
+        },
+      ]}
     >
-      {/* Soft outer glow */}
-      <View style={{
-        position: "absolute",
-        width: halo, height: halo, borderRadius: halo / 2,
-        backgroundColor: color, opacity: 0.12,
-      }} />
-      {/* Mid glow ring */}
-      <View style={{
-        position: "absolute",
-        width: size * 2.5, height: size * 2.5, borderRadius: size * 1.25,
-        backgroundColor: color, opacity: 0.35,
-      }} />
-      {/* Solid core */}
-      <View style={{
-        width: size, height: size, borderRadius: size / 2,
-        backgroundColor: color,
-        shadowColor: color, shadowOpacity: 1,
-        shadowRadius: size * 3, shadowOffset: { width: 0, height: 0 },
-      }} />
+      <View style={[s.plexusNativeHalo, { width: halo, height: halo, borderRadius: halo / 2, backgroundColor: glowColor }]} />
+      <View
+        style={[
+          s.plexusNativeCore,
+          {
+            width: point.size,
+            height: point.size,
+            borderRadius: point.size / 2,
+            backgroundColor: color,
+            shadowColor: color,
+          },
+        ]}
+      />
     </Animated.View>
   );
 }
 
-function FirefliesBackground() {
+function NativePlexusLine({ line, color }: { line: NativePlexusLineDatum; color: string }) {
+  const pulse = useRef(new Animated.Value(0.25)).current;
+
+  useEffect(() => {
+    const anim = Animated.loop(Animated.sequence([
+      Animated.delay(line.delay),
+      Animated.timing(pulse, { toValue: 1, duration: line.duration * 0.45, useNativeDriver: true }),
+      Animated.timing(pulse, { toValue: line.strong ? 0.32 : 0.16, duration: line.duration * 0.55, useNativeDriver: true }),
+    ]));
+    anim.start();
+    return () => anim.stop();
+  }, [line.delay, line.duration, line.strong, pulse]);
+
+  const opacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [line.strong ? 0.12 : 0.06, line.strong ? 0.34 : 0.22] });
+
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        s.plexusNativeLine,
+        {
+          left: line.left,
+          top: line.top,
+          width: line.width,
+          backgroundColor: color,
+          opacity,
+          transform: [{ rotate: line.rotate }],
+        },
+      ]}
+    />
+  );
+}
+
+function NativePlexusNetwork({ dangerLevel }: { dangerLevel: DangerLevel }) {
+  const th = useTheme();
+  const isAlert = dangerLevel >= 2;
+  const nodeColor = isAlert ? th.pink : th.cyan;
+  const lineColor = th.isDark
+    ? isAlert ? "rgba(255,45,120,0.72)" : "rgba(0,212,255,0.62)"
+    : isAlert ? "rgba(194,24,91,0.38)" : "rgba(2,119,189,0.34)";
+  const glowColor = th.isDark
+    ? isAlert ? "rgba(255,45,120,0.18)" : "rgba(0,212,255,0.16)"
+    : isAlert ? "rgba(194,24,91,0.10)" : "rgba(2,119,189,0.10)";
+
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      {FIREFLY_DATA.map((f, i) => <Firefly key={i} {...f} />)}
+      <View style={[s.plexusNativeFade, { backgroundColor: th.isDark ? "rgba(0,0,0,0.20)" : "rgba(248,250,252,0.22)" }]} />
+      <View style={[s.plexusNativeGlow, s.plexusNativeGlowTop, { backgroundColor: glowColor }]} />
+      <View style={[s.plexusNativeGlow, s.plexusNativeGlowBottom, { backgroundColor: th.isDark ? "rgba(57,255,20,0.08)" : "rgba(46,125,50,0.06)" }]} />
+      {NATIVE_PLEXUS_LINES.map((line, i) => <NativePlexusLine key={`line-${i}`} line={line} color={lineColor} />)}
+      {NATIVE_PLEXUS_POINTS.map((point, i) => <NativePlexusPoint key={`point-${i}`} point={point} color={nodeColor} glowColor={glowColor} />)}
     </View>
   );
 }
 
-// ─── Plexus Network Background ────────────────────────────────────────────────
-
-function PlexusCanvas() {
+function PlexusCanvas({ dangerLevel }: { dangerLevel: DangerLevel }) {
   const th = useTheme();
   const canvasRef = useRef<any>(null);
 
@@ -434,9 +503,9 @@ function PlexusCanvas() {
     const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     if (!ctx) return;
 
-    const NODE_COUNT = 55;
-    const MAX_DIST   = 140;
-    const SPEED      = 0.35;
+    const NODE_COUNT = 64;
+    const MAX_DIST   = 145;
+    const SPEED      = 0.32;
 
     type Node = { x: number; y: number; vx: number; vy: number; r: number; pulse: number; pDir: number };
 
@@ -445,15 +514,22 @@ function PlexusCanvas() {
       y:     Math.random() * canvas.height,
       vx:    (Math.random() - 0.5) * SPEED,
       vy:    (Math.random() - 0.5) * SPEED,
-      r:     Math.random() * 1.8 + 1.5,
+      r:     Math.random() * 1.8 + 1.4,
       pulse: Math.random(),
       pDir:  Math.random() > 0.5 ? 1 : -1,
     }));
 
     const isDark = th.isDark;
-    const lineColor   = isDark ? "0,210,195"  : "0,130,150";
-    const dotColor    = isDark ? "80,255,220" : "0,140,160";
-    const glowColor   = isDark ? "0,220,200"  : "0,150,170";
+    const isAlert = dangerLevel >= 2;
+    const lineColor = isAlert
+      ? isDark ? "255,45,120" : "194,24,91"
+      : isDark ? "0,210,195" : "0,130,150";
+    const dotColor = isAlert
+      ? isDark ? "255,80,150" : "194,24,91"
+      : isDark ? "80,255,220" : "0,140,160";
+    const glowColor = isAlert
+      ? isDark ? "255,45,120" : "194,24,91"
+      : isDark ? "0,220,200" : "0,150,170";
 
     let animId: number;
 
@@ -462,7 +538,6 @@ function PlexusCanvas() {
       const H = canvas.height;
       ctx.clearRect(0, 0, W, H);
 
-      // Move nodes
       for (const n of nodes) {
         n.x += n.vx; n.y += n.vy;
         if (n.x < 0)  { n.x = 0;  n.vx *= -1; }
@@ -474,17 +549,16 @@ function PlexusCanvas() {
         if (n.pulse <= 0) { n.pulse = 0; n.pDir =  1; }
       }
 
-      // Draw connecting lines
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
-          const dx   = nodes[i].x - nodes[j].x;
-          const dy   = nodes[i].y - nodes[j].y;
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < MAX_DIST) {
-            const t     = 1 - dist / MAX_DIST;
-            const alpha = t * (isDark ? 0.55 : 0.35);
+            const t = 1 - dist / MAX_DIST;
+            const alpha = t * (isDark ? 0.46 : 0.28);
             ctx.strokeStyle = `rgba(${lineColor},${alpha.toFixed(3)})`;
-            ctx.lineWidth   = t * 0.9;
+            ctx.lineWidth = t * 0.95;
             ctx.beginPath();
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
@@ -493,29 +567,24 @@ function PlexusCanvas() {
         }
       }
 
-      // Draw nodes
       for (const n of nodes) {
-        const bright = 0.55 + n.pulse * 0.45;
-
-        // Outer radial glow
-        const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 9);
-        grad.addColorStop(0, `rgba(${glowColor},${(0.28 + n.pulse * 0.35).toFixed(3)})`);
+        const bright = 0.48 + n.pulse * 0.42;
+        const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 10);
+        grad.addColorStop(0, `rgba(${glowColor},${(0.22 + n.pulse * 0.34).toFixed(3)})`);
         grad.addColorStop(1, `rgba(${glowColor},0)`);
         ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r * 9, 0, Math.PI * 2);
+        ctx.arc(n.x, n.y, n.r * 10, 0, Math.PI * 2);
         ctx.fill();
 
-        // Solid core
         ctx.fillStyle = `rgba(${dotColor},${bright.toFixed(3)})`;
         ctx.beginPath();
         ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
         ctx.fill();
 
-        // Bright centre highlight
-        ctx.fillStyle = `rgba(220,255,250,${(n.pulse * 0.9).toFixed(3)})`;
+        ctx.fillStyle = `rgba(230,255,250,${(n.pulse * 0.75).toFixed(3)})`;
         ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r * 0.4, 0, Math.PI * 2);
+        ctx.arc(n.x, n.y, n.r * 0.42, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -528,24 +597,25 @@ function PlexusCanvas() {
       cancelAnimationFrame(animId);
       if (typeof window !== "undefined") window.removeEventListener("resize", setSize);
     };
-  }, [th.isDark]);
+  }, [th.isDark, dangerLevel]);
 
   return (
-    // @ts-ignore — <canvas> is valid in Expo Web
+    // @ts-ignore - canvas is used only by Expo Web for the animated plexus layer.
     <canvas
       ref={canvasRef}
       style={{
         position: "absolute", top: 0, left: 0,
         width: "100%", height: "100%",
         pointerEvents: "none",
+        opacity: th.isDark ? 0.82 : 0.58,
       }}
     />
   );
 }
 
-function PlexusBackground() {
-  if (Platform.OS !== "web") return <FirefliesBackground />;
-  return <PlexusCanvas />;
+function PlexusBackground({ dangerLevel }: { dangerLevel: DangerLevel }) {
+  if (Platform.OS !== "web") return <NativePlexusNetwork dangerLevel={dangerLevel} />;
+  return <PlexusCanvas dangerLevel={dangerLevel} />;
 }
 
 // ─── AI Overlay ───────────────────────────────────────────────────────────────
@@ -1207,6 +1277,14 @@ const s = StyleSheet.create({
   bgOrb:    { position: "absolute", borderRadius: 999 },
   scanLine: { position: "absolute", left: 0, right: 0, height: 1 },
   gridLine: { position: "absolute", top: 0, bottom: 0, width: StyleSheet.hairlineWidth },
+  plexusNativeFade: { ...StyleSheet.absoluteFillObject },
+  plexusNativeGlow: { position: "absolute", width: 280, height: 280, borderRadius: 140 },
+  plexusNativeGlowTop: { top: 44, right: -120 },
+  plexusNativeGlowBottom: { bottom: 72, left: -130 },
+  plexusNativeLine: { position: "absolute", height: StyleSheet.hairlineWidth, borderRadius: 1 },
+  plexusNativeNode: { position: "absolute", alignItems: "center", justifyContent: "center" },
+  plexusNativeHalo: { position: "absolute", opacity: 0.72 },
+  plexusNativeCore: { shadowOpacity: 1, shadowRadius: 10, shadowOffset: { width: 0, height: 0 } },
 
   // AI overlay
   aiOverlay: { ...StyleSheet.absoluteFillObject, zIndex: 100, alignItems: "center", justifyContent: "center" },

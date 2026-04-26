@@ -1,13 +1,13 @@
 import { Link, useRouter } from "expo-router";
-import React from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { Animated, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { colors, radii, spacing } from "../constants/theme";
 import { DangerLevel } from "../models/types";
 
 export function Screen({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
     <View style={styles.screen}>
-      <CircuitBackground />
+      <PlexusBackground />
       <ScrollView style={styles.scroll} contentContainerStyle={styles.screenContent}>
         <View style={styles.header}>
           <Text style={styles.demoPill}>DEMO MODE - NO REAL EMERGENCY CONTACT</Text>
@@ -21,19 +21,101 @@ export function Screen({ title, subtitle, children }: { title: string; subtitle?
   );
 }
 
-function CircuitBackground() {
+const SHARED_PLEXUS_POINTS = [
+  { x: 26, y: 92, size: 4, delay: 0, dx: 8, dy: -6 },
+  { x: 104, y: 132, size: 5, delay: 240, dx: -10, dy: 8 },
+  { x: 194, y: 86, size: 4, delay: 480, dx: 9, dy: 7 },
+  { x: 306, y: 158, size: 5, delay: 720, dx: -8, dy: -8 },
+  { x: 64, y: 310, size: 5, delay: 180, dx: 10, dy: 9 },
+  { x: 148, y: 266, size: 4, delay: 520, dx: -7, dy: 10 },
+  { x: 252, y: 326, size: 5, delay: 860, dx: 9, dy: -7 },
+  { x: 336, y: 276, size: 4, delay: 1100, dx: -10, dy: 8 },
+  { x: 42, y: 560, size: 4, delay: 360, dx: 8, dy: -9 },
+  { x: 128, y: 620, size: 5, delay: 700, dx: -9, dy: 7 },
+  { x: 230, y: 574, size: 4, delay: 1040, dx: 10, dy: 8 },
+  { x: 316, y: 644, size: 5, delay: 1300, dx: -8, dy: -10 },
+];
+
+const SHARED_PLEXUS_LINES = [
+  { left: 30, top: 102, width: 84, rotate: "24deg", delay: 0 },
+  { left: 104, top: 124, width: 96, rotate: "-24deg", delay: 220 },
+  { left: 190, top: 94, width: 130, rotate: "34deg", delay: 440 },
+  { left: 62, top: 302, width: 92, rotate: "-28deg", delay: 120 },
+  { left: 146, top: 274, width: 116, rotate: "28deg", delay: 520 },
+  { left: 250, top: 318, width: 92, rotate: "-32deg", delay: 820 },
+  { left: 42, top: 568, width: 96, rotate: "34deg", delay: 260 },
+  { left: 126, top: 612, width: 112, rotate: "-26deg", delay: 680 },
+  { left: 228, top: 584, width: 106, rotate: "36deg", delay: 1040 },
+];
+
+function PlexusBackground() {
+  const drift = useRef(new Animated.Value(0)).current;
+  const pulse = useRef(new Animated.Value(0.28)).current;
+
+  useEffect(() => {
+    const driftAnim = Animated.loop(Animated.sequence([
+      Animated.timing(drift, { toValue: 1, duration: 6800, useNativeDriver: true }),
+      Animated.timing(drift, { toValue: 0, duration: 6200, useNativeDriver: true }),
+    ]));
+    const pulseAnim = Animated.loop(Animated.sequence([
+      Animated.timing(pulse, { toValue: 1, duration: 2400, useNativeDriver: true }),
+      Animated.timing(pulse, { toValue: 0.28, duration: 3200, useNativeDriver: true }),
+    ]));
+    driftAnim.start();
+    pulseAnim.start();
+    return () => {
+      driftAnim.stop();
+      pulseAnim.stop();
+    };
+  }, [drift, pulse]);
+
+  const translateX = drift.interpolate({ inputRange: [0, 1], outputRange: [-10, 12] });
+  const translateY = drift.interpolate({ inputRange: [0, 1], outputRange: [8, -10] });
+  const lineOpacity = pulse.interpolate({ inputRange: [0.28, 1], outputRange: [0.10, 0.28] });
+  const nodeOpacity = pulse.interpolate({ inputRange: [0.28, 1], outputRange: [0.34, 0.92] });
+
   return (
-    <View pointerEvents="none" style={styles.circuitLayer}>
-      <View style={[styles.circuitGlow, styles.circuitGlowTop]} />
-      <View style={[styles.circuitGlow, styles.circuitGlowBottom]} />
-      <View style={[styles.circuitLine, styles.circuitLineOne]} />
-      <View style={[styles.circuitLine, styles.circuitLineTwo]} />
-      <View style={[styles.circuitLine, styles.circuitLineThree]} />
-      <View style={[styles.circuitStem, styles.circuitStemOne]} />
-      <View style={[styles.circuitStem, styles.circuitStemTwo]} />
-      <View style={[styles.circuitNode, styles.circuitNodeOne]} />
-      <View style={[styles.circuitNode, styles.circuitNodeTwo]} />
-      <View style={[styles.circuitNode, styles.circuitNodeThree]} />
+    <View pointerEvents="none" style={styles.plexusLayer}>
+      <Animated.View style={[styles.plexusGlow, styles.plexusGlowTop, { opacity: pulse }]} />
+      <Animated.View style={[styles.plexusGlow, styles.plexusGlowBottom, { opacity: pulse }]} />
+      <Animated.View style={[styles.plexusDrift, { transform: [{ translateX }, { translateY }] }]}>
+        {SHARED_PLEXUS_LINES.map((line, index) => (
+          <Animated.View
+            key={`line-${index}`}
+            style={[
+              styles.plexusLine,
+              {
+                left: line.left,
+                top: line.top,
+                width: line.width,
+                opacity: lineOpacity,
+                transform: [{ rotate: line.rotate }],
+              },
+            ]}
+          />
+        ))}
+        {SHARED_PLEXUS_POINTS.map((point, index) => {
+          const halo = point.size * 7;
+          return (
+            <Animated.View
+              key={`point-${index}`}
+              style={[
+                styles.plexusNode,
+                {
+                  left: point.x - halo / 2,
+                  top: point.y - halo / 2,
+                  width: halo,
+                  height: halo,
+                  opacity: nodeOpacity,
+                },
+              ]}
+            >
+              <View style={[styles.plexusNodeHalo, { width: halo, height: halo, borderRadius: halo / 2 }]} />
+              <View style={[styles.plexusNodeCore, { width: point.size, height: point.size, borderRadius: point.size / 2 }]} />
+            </Animated.View>
+          );
+        })}
+      </Animated.View>
     </View>
   );
 }
@@ -145,92 +227,55 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "transparent",
   },
-  circuitLayer: {
+  plexusLayer: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.9,
+  },
+  plexusDrift: {
     ...StyleSheet.absoluteFillObject,
   },
-  circuitGlow: {
+  plexusGlow: {
     position: "absolute",
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    backgroundColor: "rgba(10,132,255,0.10)",
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: "rgba(96,165,250,0.12)",
     shadowColor: colors.blue,
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.28,
     shadowRadius: 70,
     shadowOffset: { width: 0, height: 0 },
   },
-  circuitGlowTop: {
-    top: -80,
-    right: -92,
+  plexusGlowTop: {
+    top: -76,
+    right: -116,
   },
-  circuitGlowBottom: {
-    bottom: 80,
-    left: -120,
-    backgroundColor: "rgba(255,59,48,0.07)",
-    shadowColor: colors.emergency,
-  },
-  circuitLine: {
-    position: "absolute",
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: "rgba(10,132,255,0.18)",
-  },
-  circuitLineOne: {
-    top: 168,
-    left: 22,
-    right: 36,
-  },
-  circuitLineTwo: {
-    top: 376,
-    left: 82,
-    right: -20,
-    backgroundColor: "rgba(34,197,94,0.13)",
-  },
-  circuitLineThree: {
-    bottom: 154,
-    left: -10,
-    right: 78,
-    backgroundColor: "rgba(10,132,255,0.12)",
-  },
-  circuitStem: {
-    position: "absolute",
-    width: StyleSheet.hairlineWidth,
-    backgroundColor: "rgba(10,132,255,0.16)",
-  },
-  circuitStemOne: {
-    top: 168,
-    right: 82,
-    height: 72,
-  },
-  circuitStemTwo: {
-    bottom: 154,
-    left: 74,
-    height: 88,
-    backgroundColor: "rgba(34,197,94,0.12)",
-  },
-  circuitNode: {
-    position: "absolute",
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.blue,
-    shadowColor: colors.blue,
-    shadowOpacity: 0.8,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 0 },
-  },
-  circuitNodeOne: {
-    top: 164,
-    right: 78,
-  },
-  circuitNodeTwo: {
-    top: 372,
-    left: 78,
-    backgroundColor: colors.safe,
+  plexusGlowBottom: {
+    bottom: 48,
+    left: -128,
+    backgroundColor: "rgba(34,197,94,0.09)",
     shadowColor: colors.safe,
   },
-  circuitNodeThree: {
-    bottom: 150,
-    left: 70,
+  plexusLine: {
+    position: "absolute",
+    height: StyleSheet.hairlineWidth,
+    borderRadius: 1,
+    backgroundColor: "rgba(96,230,255,0.95)",
+  },
+  plexusNode: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  plexusNodeHalo: {
+    position: "absolute",
+    backgroundColor: "rgba(96,230,255,0.14)",
+  },
+  plexusNodeCore: {
+    backgroundColor: "#9af7ff",
+    shadowColor: "#60e6ff",
+    shadowOpacity: 0.9,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 0 },
   },
   screenContent: {
     padding: spacing.md,
